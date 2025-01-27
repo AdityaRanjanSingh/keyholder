@@ -8,6 +8,7 @@ import {
 } from "playroomkit";
 import React, { useEffect, useRef } from "react";
 import { randInt } from "three/src/math/MathUtils";
+import { ROLES } from "../constants";
 
 const GameEngineContext = React.createContext();
 
@@ -32,6 +33,8 @@ export const GameEngineProvider = ({ children }) => {
   const [deck, setDeck] = useMultiplayerState("deck", []);
   const [gems, setGems] = useMultiplayerState("gems", NB_GEMS);
   const [nominations, setNominations] = useMultiplayerState("nominations", []);
+  const [voteYes, setVoteYes] = useMultiplayerState("voteYss", 0);
+  const [voteNo, setVoteNo] = useMultiplayerState("voteNo", 0);
 
   const [actionSuccess, setActionSuccess] = useMultiplayerState(
     "actionSuccess",
@@ -99,16 +102,18 @@ export const GameEngineProvider = ({ children }) => {
         player.setState("winner", false, true);
       });
       distributeCards(CARDS_PER_PLAYER);
-      distributeRoles(CARDS_PER_PLAYER);
+      // distributeRoles(CARDS_PER_PLAYER);
       setPhase("voting", true);
     }
   };
 
   const distributeRoles = () => {
-    const array = ["spy", "resistance", "spy"];
+    const array = ROLES[players.length];
     const shuffledArray = array.sort((a, b) => 0.5 - Math.random());
+    players[1].setState("role", "spy", true);
     players.forEach((player) => {
       const randomIndex = randInt(0, shuffledArray.length - 1);
+      console.log({ role: shuffledArray[randomIndex] });
       player.setState("role", shuffledArray[randomIndex], true);
       shuffledArray.splice(randomIndex, 1);
     });

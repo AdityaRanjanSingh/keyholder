@@ -17,7 +17,7 @@ export const PlayerMobile = ({ index, player }) => {
     currentCard === "punch" &&
     index === currentPlayer.getState("playerTarget");
   const isWinner = player.getState("winner");
-  const isSpy = player.getState("role") === "spy";
+  const role = player.getState("role");
 
   const [animation, setAnimation] = useState("Idle");
 
@@ -46,7 +46,7 @@ export const PlayerMobile = ({ index, player }) => {
       cardAnim = "Wave";
     }
     setAnimation(cardAnim);
-  }, [currentCard, playerTurn, phase, isPlayerPunched, isWinner, isSpy]);
+  }, [currentCard, playerTurn, phase, isPlayerPunched, isWinner]);
 
   return (
     <motion.group
@@ -76,10 +76,10 @@ export const PlayerMobile = ({ index, player }) => {
         },
       }}
     >
-      <Character scale={0.5} character={index} animation={animation} />
-      <PlayerName name={player.state.profile.name} position-y={0.8} />
+      <Character scale={0.3} character={index} animation={animation} />
+      <PlayerName name={player.state.profile.name} position-y={1} />
+      <PlayerName name={role} position-z={0.8} />
       {hasShield && <Gltf scale={0.5} src="/models/Prop_Barrel.gltf" />}
-      {/* PLAYER GEMS */}
       <Center disableY disableZ>
         {[...Array(player.getState("gems") || 0)].map((_, index) => (
           <Gltf
