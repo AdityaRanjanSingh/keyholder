@@ -6,7 +6,7 @@ import { useGameEngine } from "../hooks/useGameEngine";
 import { Character } from "./Character";
 import { PlayerName } from "./PlayerName";
 
-export const Player = ({ index, player }) => {
+export const MissionPlayer = ({ index, player }) => {
   const { phase, playerTurn, players, getCard } = useGameEngine();
   const isPlayerTurn = phase === "playerAction" && index === playerTurn;
   const currentPlayer = players[playerTurn];
@@ -23,6 +23,7 @@ export const Player = ({ index, player }) => {
 
   useEffect(() => {
     let cardAnim = "Idle";
+    console.log({ isSpy });
     if (isPlayerTurn) {
       switch (currentCard) {
         case "punch":
@@ -51,8 +52,10 @@ export const Player = ({ index, player }) => {
   return (
     <motion.group
       animate={animation}
-      position-x={1 + index}
-      position-z={2}
+      position-x={0.1 + index}
+      position-y={2}
+
+      position-z={1}
       variants={{
         Sword: {
           // punch
@@ -76,13 +79,8 @@ export const Player = ({ index, player }) => {
         },
       }}
     >
-      <PlayerName name={player.state.profile.name} position-y={0.8} />
-      <Character
-        scale={0.5}
-        character={index}
-        rotation-y={degToRad(180)}
-        animation={animation}
-      />
+      <PlayerName name={player.state.profile.name} position-y={0.8} scale={0.5}/>
+      <Character scale={0.5} character={index} animation={animation} />
       {hasShield && <Gltf scale={0.5} src="/models/Prop_Barrel.gltf" />}
       {/* PLAYER GEMS */}
       <Center disableY disableZ>

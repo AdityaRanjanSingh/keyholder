@@ -30,10 +30,23 @@ export const UI = () => {
     phase === "playerAction" &&
     currentCard === "punch" &&
     players[currentPlayer.getState("playerTarget")];
+  const showNominateLabel = false;
 
   let label = "";
   switch (phase) {
-    case "cards":
+    case "introductions":
+      label = "Only spies can see each other waving";
+      break;
+    case "nominatePlayers":
+      label = showNominateLabel ? "Nominate players to send on mission" : "";
+      break;
+    case "voteNomination":
+      label = "Everyone will vote on nominations";
+      break;
+    case "voteMissionSuccess":
+      label = "Pirates on mission will vote if mission is successful";
+      break;
+    case "voting":
       label = "Select the card you want to play";
       break;
     case "playerChoice":
@@ -98,7 +111,7 @@ export const UI = () => {
         audioToPlay = audios.fail;
       }
     }
-    if (phase === "cards") {
+    if (phase === "voting") {
       audioToPlay = audios.cards;
     }
     if (audioToPlay) {

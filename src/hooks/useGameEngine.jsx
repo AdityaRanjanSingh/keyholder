@@ -12,11 +12,15 @@ import { randInt } from "three/src/math/MathUtils";
 const GameEngineContext = React.createContext();
 
 const TIME_PHASE_CARDS = 10;
+const TIME_PHASE_INTRODUCTIONS = 10;
+const TIME_PHASE_NOMINATIONS = 10;
+const TIME_PHASE_VOTING = 10;
+
 const TIME_PHASE_PLAYER_CHOICE = 10;
 const TIME_PHASE_PLAYER_ACTION = 3;
 export const NB_ROUNDS = 3;
 const NB_GEMS = 3;
-const CARDS_PER_PLAYER = 4;
+const CARDS_PER_PLAYER = 2;
 
 export const GameEngineProvider = ({ children }) => {
   // GAME STATE
@@ -27,6 +31,8 @@ export const GameEngineProvider = ({ children }) => {
   const [playerStart, setPlayerStart] = useMultiplayerState("playerStart", 0);
   const [deck, setDeck] = useMultiplayerState("deck", []);
   const [gems, setGems] = useMultiplayerState("gems", NB_GEMS);
+  const [nominations, setNominations] = useMultiplayerState("nominations", []);
+
   const [actionSuccess, setActionSuccess] = useMultiplayerState(
     "actionSuccess",
     true
@@ -44,7 +50,9 @@ export const GameEngineProvider = ({ children }) => {
     players,
     gems,
     deck,
+    nominations,
     actionSuccess,
+    setNominations,
   };
 
   const distributeCards = (nbCards) => {
@@ -80,7 +88,10 @@ export const GameEngineProvider = ({ children }) => {
         true
       );
       setGems(NB_GEMS, true);
+
       players.forEach((player) => {
+        const randomPlayer = randInt(0, players.length - 1); // we choose a random player to start
+
         console.log("Setting up player", player.id);
         player.setState("cards", [], true);
         player.setState("gems", 0, true);
@@ -88,10 +99,20 @@ export const GameEngineProvider = ({ children }) => {
         player.setState("winner", false, true);
       });
       distributeCards(CARDS_PER_PLAYER);
-      setPhase("cards", true);
+      distributeRoles(CARDS_PER_PLAYER);
+      setPhase("voting", true);
     }
   };
 
+  const distributeRoles = () => {
+    const array = ["spy", "resistance", "spy"];
+    const shuffledArray = array.sort((a, b) => 0.5 - Math.random());
+    players.forEach((player) => {
+      const randomIndex = randInt(0, shuffledArray.length - 1);
+      player.setState("role", shuffledArray[randomIndex], true);
+      shuffledArray.splice(randomIndex, 1);
+    });
+  };
   useEffect(() => {
     startGame();
     onPlayerJoin(startGame); // we restart the game when a new player joins
@@ -171,15 +192,24 @@ export const GameEngineProvider = ({ children }) => {
   const phaseEnd = () => {
     let newTime = 0;
     switch (getState("phase")) {
-      case "cards":
-        if (getCard() === "punch") {
-          setPhase("playerChoice", true);
-          newTime = TIME_PHASE_PLAYER_CHOICE;
-        } else {
-          performPlayerAction();
-          setPhase("playerAction", true);
-          newTime = TIME_PHASE_PLAYER_ACTION;
-        }
+      case "introductions":
+        setPhase("nominatePlayers", true);
+        newTime = TIME_PHASE_NOMINATE_PLAYERS;
+        break;
+      case "nominatePlayers":
+        setPhase("nominatePlayers", true);
+        newTime = TIME_PHASE_NOMINATE_PLAYERS;
+        break;
+
+      case "voting":
+        // if (getCard() === "punch") {
+        //   setPhase("playerChoice", true);
+        //   newTime = TIME_PHASE_PLAYER_CHOICE;
+        // } else {
+        //   performPlayerAction();
+        //   setPhase("playerAction", true);
+        //   newTime = TIME_PHASE_PLAYER_ACTION;
+        // }
         break;
       case "playerChoice":
         performPlayerAction();
@@ -218,7 +248,7 @@ export const GameEngineProvider = ({ children }) => {
             setPlayerTurn(newPlayerStart, true);
             setRound(getState("round") + 1, true);
             distributeCards(1); // we give one new card to each player
-            setPhase("cards", true);
+            setPhase("voting", true);
             newTime = TIME_PHASE_CARDS;
           }
         } else {
