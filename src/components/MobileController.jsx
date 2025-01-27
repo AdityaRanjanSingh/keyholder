@@ -11,6 +11,8 @@ import { useCallback, useMemo } from "react";
 import { PlayerRole } from "./PlayerRole";
 import { Player } from "./Player";
 import { MissionPlayer } from "./MissionPlayer";
+import { useControls } from "leva";
+import { PlayerMobile } from "./PlayerMobile";
 
 export const MobileController = () => {
   const me = myPlayer();
@@ -24,55 +26,13 @@ export const MobileController = () => {
   let playerIdx = 0;
   const viewport = useThree((state) => state.viewport);
   const scalingRatio = Math.min(1, viewport.width / 3);
-
+  const { newValue } = useControls({
+    newValue: false,
+  });
   return (
     <group position-y={-1}>
-      <OrbitControls></OrbitControls>
-
       <ContactShadows opacity={0.12} />
-
       <group scale={scalingRatio}>
-        {/* <Center disableY disableZ>
-          {players.map(
-            (player, index) =>
-              nominations.indexOf(index) !== -1 && (
-                <motion.group
-                  key={player.id}
-                  position-x={playerIdx++ * 0.8}
-                  position-z={-2}
-                  animate={nominations.indexOf(index) !== -1 ? "selected" : ""}
-                  scale={0.4}
-                  variants={{
-                    selected: {
-                      z: -1,
-                    },
-                  }}
-                >
-                  <mesh
-                    onClick={() => {
-                      // if (nominations.length < 2)
-                      //   return setNominations([...nominations, index]);
-                      // return setNominations([]);
-                    }}
-                    position-y={1}
-                    visible={false}
-                  >
-                    <boxGeometry args={[1.2, 2, 0.5]} />
-                    <meshStandardMaterial color="hotpink" />
-                  </mesh>
-                  <PlayerName
-                    name={player.state.profile.name}
-                    fontSize={0.3}
-                    position-y={1.6}
-                  />
-                  <Character
-                    character={index}
-                    name={player.state.profile.name}
-                  />
-                </motion.group>
-              )
-          )}
-        </Center> */}
         {phase === "nominatePlayers" && (
           <>
             <Center disableY disableZ>
@@ -127,16 +87,16 @@ export const MobileController = () => {
           </>
         )}
 
-        {/* <group position-y={2}>
+        <group position={[0, 0, -10]}>
           <Center disableY disableZ>
             {players.map((player, index) => (
-              <Player index={index} player={player}></Player>
+              <PlayerMobile player={player} index={index}></PlayerMobile>
             ))}
           </Center>
-        </group> */}
+        </group>
         {/* CARDS */}
-        {phase === "voting" && (
-          <group position-z={0}>
+        {/* {phase === "voting" && (
+          <group>
             {cards.map((card, index) => {
               let cardAnimState = "";
               const selected = index === me.getState("selectedCard");
@@ -189,7 +149,7 @@ export const MobileController = () => {
               );
             })}
           </group>
-        )}
+        )} */}
         {/* {phase === "playerChoice" && players[playerTurn].id === me.id && (
           <Center disableY disableZ>
             {players.map(
@@ -239,6 +199,18 @@ export const MobileController = () => {
             )}
           </Center>
         )} */}
+      </group>
+      <group position={[0.5, 0, 1]}>
+        <mesh>
+          <boxGeometry args={[0.5, 1, 0.5]} />
+          <meshStandardMaterial></meshStandardMaterial>
+        </mesh>
+      </group>
+      <group position={[-0.5, 0, 1]}>
+        <mesh>
+          <boxGeometry args={[0.5, 1, 0.5]} />
+          <meshStandardMaterial></meshStandardMaterial>
+        </mesh>
       </group>
     </group>
   );

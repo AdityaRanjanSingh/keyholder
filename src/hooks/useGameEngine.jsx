@@ -274,7 +274,6 @@ export const GameEngineProvider = ({ children }) => {
   const { paused } = useControls({
     paused: false,
   });
-
   const timerInterval = useRef();
 
   const runTimer = () => {
