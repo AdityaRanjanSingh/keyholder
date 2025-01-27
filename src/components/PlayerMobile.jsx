@@ -5,13 +5,15 @@ import { degToRad } from "three/src/math/MathUtils";
 import { useGameEngine } from "../hooks/useGameEngine";
 import { Character } from "./Character";
 import { PlayerName } from "./PlayerName";
+import { useControls } from "leva";
+import { getState } from "playroomkit";
 
 export const PlayerMobile = ({ index, player }) => {
-  const { phase, playerTurn, players, getCard } = useGameEngine();
+  const { phase, playerTurn, players, getCard, nominations, setNominations } =
+    useGameEngine();
   const isPlayerTurn = phase === "playerAction" && index === playerTurn;
   const currentPlayer = players[playerTurn];
   const currentCard = getCard();
-  const hasShield = player.getState("shield");
   const isPlayerPunched =
     phase === "playerAction" &&
     currentCard === "punch" &&
@@ -45,19 +47,22 @@ export const PlayerMobile = ({ index, player }) => {
     if (isWinner) {
       cardAnim = "Wave";
     }
+    if (nominations.includes(index)) {
+      cardAnim = "Jump";
+    }
     setAnimation(cardAnim);
-  }, [currentCard, playerTurn, phase, isPlayerPunched, isWinner]);
-
+  }, [currentCard, playerTurn, phase, isPlayerPunched, isWinner, nominations]);
+  const onPlayerSelect = (index) => {
+    setNominations([...nominations, index]);
+    console.log(index);
+  };
   return (
     <motion.group
       animate={animation}
       position-x={1 + index}
-      position-z={2}
       variants={{
-        Sword: {
+        Jump: {
           // punch
-          z: 0.2,
-          x: -1,
         },
         Wave: {
           // shield
@@ -76,22 +81,13 @@ export const PlayerMobile = ({ index, player }) => {
         },
       }}
     >
+      <mesh onClick={() => onPlayerSelect(index)} visible={false}>
+        <boxGeometry args={[1.2, 2, 0.5]} />
+        <meshStandardMaterial color="hotpink" />
+      </mesh>
       <Character scale={0.3} character={index} animation={animation} />
       <PlayerName name={player.state.profile.name} position-y={1} />
       <PlayerName name={role} position-z={0.8} />
-      {hasShield && <Gltf scale={0.5} src="/models/Prop_Barrel.gltf" />}
-      <Center disableY disableZ>
-        {[...Array(player.getState("gems") || 0)].map((_, index) => (
-          <Gltf
-            key={index}
-            src="/models/UI_Gem_Blue.gltf"
-            position-x={index * 0.25}
-            position-y={0.25}
-            position-z={0.5}
-            scale={0.5}
-          />
-        ))}
-      </Center>
     </motion.group>
   );
 };

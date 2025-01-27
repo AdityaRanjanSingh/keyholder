@@ -37,8 +37,12 @@ export const UI = () => {
     case "introductions":
       label = "Only spies can see each other waving";
       break;
-    case "nominatePlayers":
-      label = showNominateLabel ? "Nominate players to send on mission" : "";
+    case "nomination":
+      label =
+        currentPlayer?.id === me.id
+          ? "Nominate players to send on mission"
+          : currentPlayer?.state.profile?.name +
+            " is nominating players for mission";
       break;
     case "voteNomination":
       label = "Everyone will vote on nominations";
@@ -51,7 +55,7 @@ export const UI = () => {
       break;
     case "playerChoice":
       label =
-        currentPlayer.id === me.id
+        currentPlayer?.id === me.id
           ? "Select the player you want to punch"
           : `${currentPlayer?.state.profile?.name} is going to punch someone`;
       break;
@@ -123,9 +127,8 @@ export const UI = () => {
     <div className="text-white drop-shadow-xl fixed top-0 left-0 right-0 bottom-0 z-10 flex flex-col pointer-events-none">
       <div className="p-4 w-full flex items-center justify-between">
         <h2 className="text-2xl font-bold text-center uppercase">
-          Round {round}/{NB_ROUNDS}
+          Mission {round}/{NB_ROUNDS}
         </h2>
-
         <div className=" flex items-center gap-1 w-14">
           <svg
             xmlns="http://www.w3.org/2000/svg"

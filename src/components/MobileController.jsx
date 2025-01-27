@@ -35,6 +35,8 @@ export const MobileController = () => {
   const { cylinderRotation } = useControls({
     cylinderRotation: { x: 0, y: 0, z: 0 },
   });
+
+ 
   return (
     <group position-y={-1}>
       <ContactShadows opacity={0.12} />

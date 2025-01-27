@@ -19,9 +19,18 @@ const TIME_PHASE_VOTING = 10;
 
 const TIME_PHASE_PLAYER_CHOICE = 10;
 const TIME_PHASE_PLAYER_ACTION = 3;
-export const NB_ROUNDS = 3;
+export const NB_ROUNDS = 5;
 const NB_GEMS = 3;
 const CARDS_PER_PLAYER = 2;
+const PLAYERS_SPIES = {
+  3: 1,
+  4: 1,
+  5: 2,
+  6: 2,
+  7: 3,
+  8: 3,
+  9: 4,
+};
 
 export const GameEngineProvider = ({ children }) => {
   // GAME STATE
@@ -31,6 +40,8 @@ export const GameEngineProvider = ({ children }) => {
   const [playerTurn, setPlayerTurn] = useMultiplayerState("playerTurn", 0);
   const [playerStart, setPlayerStart] = useMultiplayerState("playerStart", 0);
   const [deck, setDeck] = useMultiplayerState("deck", []);
+  const [rolesDeck, setRolesDeck] = useMultiplayerState("rolesDeck", []);
+
   const [gems, setGems] = useMultiplayerState("gems", NB_GEMS);
   const [nominations, setNominations] = useMultiplayerState("nominations", []);
   const [voteYes, setVoteYes] = useMultiplayerState("voteYss", 0);
@@ -90,6 +101,12 @@ export const GameEngineProvider = ({ children }) => {
         ],
         true
       );
+      const spies = PLAYERS_SPIES[players.length];
+      const resistance = players.length - spies;
+      setRolesDeck([
+        ...new Array(spies).fill(0).map(() => "spy"),
+        ...new Array(resistance).fill(0).map(() => "resistance"),
+      ]);
       setGems(NB_GEMS, true);
 
       players.forEach((player) => {
@@ -102,18 +119,16 @@ export const GameEngineProvider = ({ children }) => {
         player.setState("winner", false, true);
       });
       distributeCards(CARDS_PER_PLAYER);
-      // distributeRoles(CARDS_PER_PLAYER);
-      setPhase("voting", true);
+      distributeRoles(players.length);
+      setPhase("nomination", true);
     }
   };
 
-  const distributeRoles = () => {
-    const array = ROLES[players.length];
-    const shuffledArray = array.sort((a, b) => 0.5 - Math.random());
-    players[1].setState("role", "spy", true);
+  const distributeRoles = (number) => {
+    const newDeck = [...getState("rolesDeck")];
+    const shuffledArray = newDeck.sort((a, b) => 0.5 - Math.random());
     players.forEach((player) => {
       const randomIndex = randInt(0, shuffledArray.length - 1);
-      console.log({ role: shuffledArray[randomIndex] });
       player.setState("role", shuffledArray[randomIndex], true);
       shuffledArray.splice(randomIndex, 1);
     });
