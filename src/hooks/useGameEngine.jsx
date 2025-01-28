@@ -66,7 +66,6 @@ export const GameEngineProvider = ({ children }) => {
     deck,
     nominations,
     actionSuccess,
-    setNominations,
   };
 
   const distributeCards = (nbCards) => {

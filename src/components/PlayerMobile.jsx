@@ -5,12 +5,10 @@ import { degToRad } from "three/src/math/MathUtils";
 import { useGameEngine } from "../hooks/useGameEngine";
 import { Character } from "./Character";
 import { PlayerName } from "./PlayerName";
-import { useControls } from "leva";
-import { getState } from "playroomkit";
+import { getState, setState } from "playroomkit";
 
 export const PlayerMobile = ({ index, player }) => {
-  const { phase, playerTurn, players, getCard, nominations, setNominations } =
-    useGameEngine();
+  const { phase, playerTurn, players, getCard } = useGameEngine();
   const isPlayerTurn = phase === "playerAction" && index === playerTurn;
   const currentPlayer = players[playerTurn];
   const currentCard = getCard();
@@ -20,8 +18,10 @@ export const PlayerMobile = ({ index, player }) => {
     index === currentPlayer.getState("playerTarget");
   const isWinner = player.getState("winner");
   const role = player.getState("role");
+  const nominations = getState("nominations");
 
   const [animation, setAnimation] = useState("Idle");
+  const [selected, setSelected] = useState(false);
 
   useEffect(() => {
     let cardAnim = "Idle";
@@ -47,22 +47,29 @@ export const PlayerMobile = ({ index, player }) => {
     if (isWinner) {
       cardAnim = "Wave";
     }
-    if (nominations.includes(index)) {
-      cardAnim = "Jump";
-    }
+
+    setSelected(nominations.includes(index));
+
     setAnimation(cardAnim);
   }, [currentCard, playerTurn, phase, isPlayerPunched, isWinner, nominations]);
+
   const onPlayerSelect = (index) => {
-    setNominations([...nominations, index]);
-    console.log(index);
+    let newNominations = [];
+    if (nominations.includes(index)) {
+      newNominations = nominations.filter((item) => item !== index);
+    } else {
+      nominations.push(index);
+      newNominations = nominations;
+    }
+    setState("nominations", newNominations, true);
   };
   return (
     <motion.group
-      animate={animation}
+      animate={selected ? "selected" : ""}
       position-x={1 + index}
       variants={{
-        Jump: {
-          // punch
+        selected: {
+          scale: 1.5,
         },
         Wave: {
           // shield
