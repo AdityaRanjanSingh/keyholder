@@ -18,7 +18,7 @@ export const PlayerMobile = ({ index, player }) => {
     index === currentPlayer.getState("playerTarget");
   const isWinner = player.getState("winner");
   const role = player.getState("role");
-  const nominations = getState("nominations");
+  const nominations = getState("nominations") || [];
 
   const [animation, setAnimation] = useState("Idle");
   const [selected, setSelected] = useState(false);
@@ -47,7 +47,6 @@ export const PlayerMobile = ({ index, player }) => {
     if (isWinner) {
       cardAnim = "Wave";
     }
-
     setSelected(nominations.includes(index));
 
     setAnimation(cardAnim);

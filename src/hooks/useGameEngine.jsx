@@ -12,7 +12,6 @@ import { ROLES } from "../constants";
 
 const GameEngineContext = React.createContext();
 
-const TIME_PHASE_CARDS = 10;
 const TIME_PHASE_INTRODUCTIONS = 10;
 const TIME_PHASE_NOMINATIONS = 10;
 const TIME_PHASE_VOTING = 10;
@@ -68,26 +67,10 @@ export const GameEngineProvider = ({ children }) => {
     actionSuccess,
   };
 
-  const distributeCards = (nbCards) => {
-    const newDeck = [...getState("deck")];
-    players.forEach((player) => {
-      const cards = player.getState("cards") || [];
-      for (let i = 0; i < nbCards; i++) {
-        const randomIndex = randInt(0, newDeck.length - 1);
-        cards.push(newDeck[randomIndex]);
-        newDeck.splice(randomIndex, 1);
-      }
-      player.setState("cards", cards, true);
-      player.setState("selectedCard", 0, true);
-      player.setState("playerTarget", -1, true);
-    });
-    setDeck(newDeck, true);
-  };
-
   const startGame = () => {
     if (isHost()) {
       console.log("Start game");
-      setTimer(TIME_PHASE_CARDS, true);
+      setTimer(TIME_PHASE_INTRODUCTIONS, true);
       const randomPlayer = randInt(0, players.length - 1); // we choose a random player to start
       setPlayerStart(randomPlayer, true);
       setPlayerTurn(randomPlayer, true);
@@ -117,9 +100,8 @@ export const GameEngineProvider = ({ children }) => {
         player.setState("shield", false, true);
         player.setState("winner", false, true);
       });
-      distributeCards(CARDS_PER_PLAYER);
       distributeRoles(players.length);
-      setPhase("nomination", true);
+      setPhase("introductions", true);
     }
   };
 
@@ -212,12 +194,29 @@ export const GameEngineProvider = ({ children }) => {
     let newTime = 0;
     switch (getState("phase")) {
       case "introductions":
-        setPhase("nominatePlayers", true);
-        newTime = TIME_PHASE_NOMINATE_PLAYERS;
+        setPhase("nominations", true);
+        newTime = TIME_PHASE_NOMINATIONS;
         break;
-      case "nominatePlayers":
-        setPhase("nominatePlayers", true);
-        newTime = TIME_PHASE_NOMINATE_PLAYERS;
+      case "nominations":
+        setPhase("voteNomination", true);
+        newTime = TIME_PHASE_NOMINATIONS;
+        break;
+      case "voteNomination":
+        setPhase("voteResult", true);
+        newTime = TIME_PHASE_NOMINATIONS;
+        break;
+      case "voteResult":
+        setPhase("voteMission", true);
+        newTime = TIME_PHASE_NOMINATIONS;
+        break;
+      case "voteMission":
+        setPhase("missionResult", true);
+        newTime = TIME_PHASE_NOMINATIONS;
+        break;
+
+      case "missionResult":
+        setPhase("missionResult", true);
+        newTime = TIME_PHASE_NOMINATIONS;
         break;
 
       case "voting":
@@ -266,9 +265,8 @@ export const GameEngineProvider = ({ children }) => {
             setPlayerStart(newPlayerStart, true);
             setPlayerTurn(newPlayerStart, true);
             setRound(getState("round") + 1, true);
-            distributeCards(1); // we give one new card to each player
             setPhase("voting", true);
-            newTime = TIME_PHASE_CARDS;
+            newTime = TIME_PHASE_INTRODUCTIONS;
           }
         } else {
           // NEXT PLAYER

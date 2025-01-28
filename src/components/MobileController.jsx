@@ -19,6 +19,8 @@ import { Player } from "./Player";
 import { MissionPlayer } from "./MissionPlayer";
 import { useControls } from "leva";
 import { PlayerMobile } from "./PlayerMobile";
+import { VoteCard } from "./VoteCard";
+import { RejectCard } from "./RejectCard";
 
 export const MobileController = () => {
   const me = myPlayer();
@@ -36,11 +38,26 @@ export const MobileController = () => {
     cylinderRotation: { x: 0, y: 0, z: 0 },
   });
 
- 
   return (
     <group position-y={-1}>
       <ContactShadows opacity={0.12} />
       <group scale={scalingRatio}>
+        <Center disableZ>
+          <group position={[0, 0, -30]}>
+            {[1, 2, 3, 4, 5].map((i, index) => (
+              <mesh
+                position-x={index * 1.8}
+                key={index}
+                rotation-z={degToRad(90)}
+                rotation-y={degToRad(90)}
+                scale={1.5}
+              >
+                <cylinderGeometry args={[0.5, 0.5, 0.2]} />
+                <meshStandardMaterial color={"orange"}></meshStandardMaterial>
+              </mesh>
+            ))}
+          </group>
+        </Center>
         <group position={[0, 0, -10]}>
           <Center>
             {players.map((player, index) => (
@@ -52,45 +69,111 @@ export const MobileController = () => {
             ))}
           </Center>
         </group>
-        <Center disableZ>
-          <group position={[0, 0, -20]}>
-            {[1, 2, 3, 4, 5].map((i, index) => (
-              <mesh
-                position-x={index * 1.2}
+        <group position-y={1}>
+          {["approve", "reject"].map((card, index) => {
+            let cardAnimState = "";
+            const selected = index === me.getState("selectedCard");
+            if (phase === "cards") {
+              cardAnimState = "cardSelection";
+              if (selected) {
+                cardAnimState = "cardSelectionSelected";
+              }
+            } else {
+              if (selected) {
+                cardAnimState = "selected";
+              }
+            }
+            return (
+              <motion.group
                 key={index}
-                rotation-z={degToRad(90)}
-                rotation-y={degToRad(90)}
-                scale={1}
+                position-x={1.2 + index * 0.1}
+                position-y={-1.5 + index * 0.1}
+                position-z={-index * 0.1}
+                animate={cardAnimState}
+                variants={{
+                  selected: {
+                    x: -0.1,
+                    y: 0.1,
+                    z: 0.1,
+                  },
+                  cardSelection: {
+                    x: index % 2 ? 0.6 : -0.6,
+                    y: Math.floor(index / 2) * 1.6,
+                    z: -0.5,
+                  },
+                  cardSelectionSelected: {
+                    x: 0,
+                    y: 0,
+                    z: 2,
+                    rotateX: degToRad(-45),
+                    rotateY: 0,
+                    rotateZ: 0,
+                    scale: 1.1,
+                  },
+                }}
+                onClick={() => {
+                  if (phase === "cards") {
+                    me.setState("selectedCard", index, true);
+                  }
+                }}
               >
-                <cylinderGeometry args={[0.5, 0.5, 0.2]} />
-                <meshStandardMaterial color={"orange"}></meshStandardMaterial>
-              </mesh>
-            ))}
-          </group>
-        </Center>
-        <group>
-          <group>
-            <PlayerName position={[-1, 0, 0]} name={"Approves"}></PlayerName>
-            <PlayerName position={[-1, 0, 0.5]} name={"10"}></PlayerName>
-          </group>
-          <group>
-            <PlayerName position={[1, 0, 0]} name={"Rejects"}></PlayerName>
-            <PlayerName position={[1, 0, 0.5]} name={"10"}></PlayerName>
-          </group>
+                <Card type={card} />
+              </motion.group>
+            );
+          })}
         </group>
-        <group position={[1, 0, 2]}>
-          <mesh>
-            <boxGeometry args={[1, 0.1, 0.5]} />
-            <meshStandardMaterial color={"red"}></meshStandardMaterial>
-            <PlayerName name={"No"} />
-          </mesh>
-        </group>
-        <group position={[-1, 0, 2]}>
-          <mesh>
-            <boxGeometry args={[1, 0.1, 0.5]} />
-            <meshStandardMaterial color={"green"}></meshStandardMaterial>
-            <PlayerName name={"Yes"} />
-          </mesh>
+        <group position-y={1}>
+          {["success", "failure"].map((card, index) => {
+            let cardAnimState = "";
+            const selected = index === me.getState("selectedCard");
+            if (phase === "cards") {
+              cardAnimState = "cardSelection";
+              if (selected) {
+                cardAnimState = "cardSelectionSelected";
+              }
+            } else {
+              if (selected) {
+                cardAnimState = "selected";
+              }
+            }
+            return (
+              <motion.group
+                key={index}
+                position-x={-1.2 + index * 0.1}
+                position-y={-1.5 + index * 0.1}
+                position-z={-index * 0.1}
+                animate={cardAnimState}
+                variants={{
+                  selected: {
+                    x: -0.1,
+                    y: 0.1,
+                    z: 0.1,
+                  },
+                  cardSelection: {
+                    x: index % 2 ? 0.6 : -0.6,
+                    y: Math.floor(index / 2) * 1.6,
+                    z: -0.5,
+                  },
+                  cardSelectionSelected: {
+                    x: 0,
+                    y: 0,
+                    z: 2,
+                    rotateX: degToRad(-45),
+                    rotateY: 0,
+                    rotateZ: 0,
+                    scale: 1.1,
+                  },
+                }}
+                onClick={() => {
+                  if (phase === "cards") {
+                    me.setState("selectedCard", index, true);
+                  }
+                }}
+              >
+                <Card type={card} />
+              </motion.group>
+            );
+          })}
         </group>
       </group>
     </group>

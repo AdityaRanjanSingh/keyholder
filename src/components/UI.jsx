@@ -35,9 +35,9 @@ export const UI = () => {
   let label = "";
   switch (phase) {
     case "introductions":
-      label = "Only spies can see each other waving";
+      label = "Only spies can see the player roles";
       break;
-    case "nomination":
+    case "nominations":
       label =
         currentPlayer?.id === me.id
           ? "Nominate players to send on mission"
@@ -47,17 +47,14 @@ export const UI = () => {
     case "voteNomination":
       label = "Everyone will vote on nominations";
       break;
-    case "voteMissionSuccess":
-      label = "Pirates on mission will vote if mission is successful";
+    case "voteResult":
+      label = "Nomination is approved";
       break;
-    case "voting":
-      label = "Select the card you want to play";
+    case "voteMission":
+      label = "Mission in progress";
       break;
-    case "playerChoice":
-      label =
-        currentPlayer?.id === me.id
-          ? "Select the player you want to punch"
-          : `${currentPlayer?.state.profile?.name} is going to punch someone`;
+    case "missionResult":
+      label = "Mission is successful";
       break;
     case "playerAction":
       switch (currentCard) {
