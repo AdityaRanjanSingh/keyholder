@@ -96,8 +96,8 @@ export const PlayerMobile = ({ index, player }) => {
         <meshStandardMaterial color="hotpink" />
       </mesh>
       <Character scale={0.3} character={index} animation={animation} />
-      <PlayerName name={player.state.profile.name} position-y={1} />
-      <PlayerName name={role} position-z={0.8} />
+      {/* <PlayerName name={player.state.profile.name} position-y={1} />
+      <PlayerName name={role} position-z={0.8} /> */}
     </motion.group>
   );
 };

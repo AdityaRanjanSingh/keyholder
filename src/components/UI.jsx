@@ -21,19 +21,18 @@ export const UI = () => {
     mission,
     getCard,
     actionSuccess,
+    missionSuccess,
     nominations,
+    missionPlayers,
   } = useGameEngine();
 
   const currentPlayer = players[playerTurn];
   const me = myPlayer();
-  const currentCard = getCard();
-  const target =
-    phase === "playerAction" &&
-    currentCard === "punch" &&
-    players[currentPlayer.getState("playerTarget")];
-  const showNominateLabel = false;
   const myIndex = players.findIndex((player) => player.id === me.id);
-
+  const missionPlayersNames = (nominations || [])
+    .map((index) => players[index].state.profile?.name)
+    .join(" and ");
+  const noOfmissionPlayers = missionPlayers[mission - 1];
   let label = "";
   switch (phase) {
     case "introductions":
@@ -42,12 +41,12 @@ export const UI = () => {
     case "nominations":
       label =
         currentPlayer?.id === me.id
-          ? "Nominate players to send on mission"
+          ? `Nominate ${noOfmissionPlayers} players to send on mission`
           : currentPlayer?.state.profile?.name +
             " is nominating players for mission";
       break;
     case "voteNomination":
-      label = "Everyone will vote on nominations";
+      label = missionPlayersNames + " are nominated for mission";
       break;
     case "voteResult":
       label = "Counting votes";
@@ -144,12 +143,7 @@ export const UI = () => {
 
         {phase === "end" && (
           <p className="text-center">
-            Winner:{" "}
-            {players
-              .filter((player) => player.getState("winner"))
-              .map((player) => player.state.profile.name)
-              .join(", ")}
-            !
+            Winner: {missionSuccess >= 3 ? "Resistance" : "Spies"}!
           </p>
         )}
         {isHost() && phase === "end" && (
