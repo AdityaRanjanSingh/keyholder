@@ -1,7 +1,7 @@
 import { useAnimations, useGLTF } from "@react-three/drei";
 import { useEffect, useRef } from "react";
 
-export const Bunny = ({ animation = "Idle", ...props }) => {
+export const Bunny = ({ character = 0, animation = "Idle", ...props }) => {
   const { scene, animations } = useGLTF(`/models/Bunny.gltf`);
 
   const ref = useRef();

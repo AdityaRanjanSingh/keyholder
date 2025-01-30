@@ -19,7 +19,7 @@ import { useGameEngine } from "../hooks/useGameEngine";
 import { Card } from "./Card";
 import { Character } from "./Character";
 import { PlayerName } from "./PlayerName";
-import { useCallback, useMemo } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { PlayerRole } from "./PlayerRole";
 import { Player } from "./Player";
 import { MissionPlayer } from "./MissionPlayer";
@@ -36,6 +36,8 @@ export const MobileController = () => {
   const myIndex = players.findIndex((player) => player.id === me.id);
   const myRole = me.getState("role");
   const isPlayerTurn = phase === "nominations" && myIndex === playerTurn;
+
+  const [bunnyAnimation, setBunnyAnimation] = useState("Idle");
 
   const cards = me.getState("cards") || [];
   usePlayersList(true); // force rerender when player change
@@ -56,13 +58,23 @@ export const MobileController = () => {
       setState("nominations", newNominations, true);
     }
   };
+  const onBunnyPress = () => {
+    setBunnyAnimation("Death");
+    setTimeout(() => {
+      setBunnyAnimation("Idle");
+    }, 5);
+  };
   return (
     <group position-y={-1}>
       <ContactShadows opacity={0.12} />
       <group scale={scalingRatio}>
         {isHost() && (
           <group position-z={3.5} position-x={0}>
-            <Bunny scale={0.4} />
+            <mesh onClick={() => onBunnyPress()} visible={false}>
+              <boxGeometry args={[1, 1.5, 1]} />
+              <meshStandardMaterial color="hotpink" />
+            </mesh>
+            <Bunny scale={0.4} animation={bunnyAnimation} />
           </group>
         )}
         <Center disableZ>
