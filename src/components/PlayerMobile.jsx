@@ -1,15 +1,16 @@
-import { Center, Gltf } from "@react-three/drei";
 import { motion } from "framer-motion-3d";
 import { useEffect, useState } from "react";
 import { degToRad } from "three/src/math/MathUtils";
 import { useGameEngine } from "../hooks/useGameEngine";
 import { Character } from "./Character";
 import { PlayerName } from "./PlayerName";
-import { getState, setState } from "playroomkit";
+import { getState, myPlayer, setState } from "playroomkit";
 
 export const PlayerMobile = ({ index, player }) => {
   const { phase, playerTurn, players, getCard } = useGameEngine();
-  const isPlayerTurn = phase === "playerAction" && index === playerTurn;
+  const me = myPlayer();
+  const myIndex = players.findIndex((player) => player.id === me.id);
+  const isPlayerTurn = phase === "nominations" && myIndex === playerTurn;
   const currentPlayer = players[playerTurn];
   const currentCard = getCard();
   const isPlayerPunched =
@@ -52,15 +53,18 @@ export const PlayerMobile = ({ index, player }) => {
     setAnimation(cardAnim);
   }, [currentCard, playerTurn, phase, isPlayerPunched, isWinner, nominations]);
 
-  const onPlayerSelect = (index) => {
-    let newNominations = [];
-    if (nominations.includes(index)) {
-      newNominations = nominations.filter((item) => item !== index);
-    } else {
-      nominations.push(index);
-      newNominations = nominations;
+  const onPlayerSelect = () => {
+    console.log({ isPlayerTurn, index, phase });
+    if (isPlayerTurn) {
+      let newNominations = [];
+      if (nominations.includes(index)) {
+        newNominations = nominations.filter((item) => item !== index);
+      } else {
+        nominations.push(index);
+        newNominations = nominations;
+      }
+      setState("nominations", newNominations, true);
     }
-    setState("nominations", newNominations, true);
   };
   return (
     <motion.group
@@ -87,7 +91,7 @@ export const PlayerMobile = ({ index, player }) => {
         },
       }}
     >
-      <mesh onClick={() => onPlayerSelect(index)} visible={false}>
+      <mesh onClick={() => onPlayerSelect()} visible={false}>
         <boxGeometry args={[1.2, 2, 0.5]} />
         <meshStandardMaterial color="hotpink" />
       </mesh>

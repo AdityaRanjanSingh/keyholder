@@ -70,10 +70,10 @@ export const MobileController = () => {
           </Center>
         </group>
         <group position-y={1}>
-          {["approve", "reject"].map((card, index) => {
+          {["reject", "approve"].map((card, index) => {
             let cardAnimState = "";
-            const selected = index === me.getState("selectedCard");
-            if (phase === "cards") {
+            const selected = index === me.getState("selectedNominationCard");
+            if (phase === "voteNomination") {
               cardAnimState = "cardSelection";
               if (selected) {
                 cardAnimState = "cardSelectionSelected";
@@ -112,8 +112,8 @@ export const MobileController = () => {
                   },
                 }}
                 onClick={() => {
-                  if (phase === "cards") {
-                    me.setState("selectedCard", index, true);
+                  if (phase === "voteNomination") {
+                    me.setState("selectedNominationCard", index, true);
                   }
                 }}
               >
@@ -123,10 +123,10 @@ export const MobileController = () => {
           })}
         </group>
         <group position-y={1}>
-          {["success", "failure"].map((card, index) => {
+          {["failure", "success"].map((card, index) => {
             let cardAnimState = "";
-            const selected = index === me.getState("selectedCard");
-            if (phase === "cards") {
+            const selected = index === me.getState("selectedMissionCard");
+            if (phase === "voteMission") {
               cardAnimState = "cardSelection";
               if (selected) {
                 cardAnimState = "cardSelectionSelected";
@@ -165,8 +165,8 @@ export const MobileController = () => {
                   },
                 }}
                 onClick={() => {
-                  if (phase === "cards") {
-                    me.setState("selectedCard", index, true);
+                  if (phase === "voteMission") {
+                    me.setState("selectedMissionCard", index, true);
                   }
                 }}
               >

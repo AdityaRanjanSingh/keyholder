@@ -3,6 +3,7 @@ import {
   getState,
   isHost,
   onPlayerJoin,
+  setState,
   useMultiplayerState,
   usePlayersList,
 } from "playroomkit";
@@ -14,13 +15,15 @@ const GameEngineContext = React.createContext();
 
 const TIME_PHASE_INTRODUCTIONS = 10;
 const TIME_PHASE_NOMINATIONS = 10;
-const TIME_PHASE_VOTING = 10;
+const TIME_PHASE_VOTE_NOMINATIONS = 10;
+const TIME_PHASE_NOMINATION_RESULT = 10;
+const TIME_PHASE_MISSON_VOTE = 10;
+const TIME_PHASE_MISSION_RESULT = 10;
 
 const TIME_PHASE_PLAYER_CHOICE = 10;
 const TIME_PHASE_PLAYER_ACTION = 3;
-export const NB_ROUNDS = 5;
+export const NB_MISSIONS = 5;
 const NB_GEMS = 3;
-const CARDS_PER_PLAYER = 2;
 const PLAYERS_SPIES = {
   3: 1,
   4: 1,
@@ -30,11 +33,32 @@ const PLAYERS_SPIES = {
   8: 3,
   9: 4,
 };
+const MISSION_PLAYERS = {
+  5: [2, 3, 2, 3, 3],
+  6: [2, 3, 4, 3, 4],
+  7: [2, 3, 3, 4, 4],
+  8: [3, 4, 4, 5, 5],
+  9: [3, 4, 4, 5, 5],
+  10: [3, 4, 4, 5, 5],
+};
 
 export const GameEngineProvider = ({ children }) => {
   // GAME STATE
   const [timer, setTimer] = useMultiplayerState("timer", 0);
-  const [round, setRound] = useMultiplayerState("round", 1);
+  const [mission, setMission] = useMultiplayerState("mission", 1);
+  const [missionSuccess, setMissionSuccess] = useMultiplayerState(
+    "missionSuccess",
+    0
+  );
+  const [missionFailure, setMissionFailure] = useMultiplayerState(
+    "missionFailure",
+    0
+  );
+  const [nominationFailure, setNominationFailure] = useMultiplayerState(
+    "nominationFailure",
+    0
+  );
+
   const [phase, setPhase] = useMultiplayerState("phase", "lobby");
   const [playerTurn, setPlayerTurn] = useMultiplayerState("playerTurn", 0);
   const [playerStart, setPlayerStart] = useMultiplayerState("playerStart", 0);
@@ -43,7 +67,7 @@ export const GameEngineProvider = ({ children }) => {
 
   const [gems, setGems] = useMultiplayerState("gems", NB_GEMS);
   const [nominations, setNominations] = useMultiplayerState("nominations", []);
-  const [voteYes, setVoteYes] = useMultiplayerState("voteYss", 0);
+  const [voteYes, setVoteYes] = useMultiplayerState("voteYes", 0);
   const [voteNo, setVoteNo] = useMultiplayerState("voteNo", 0);
 
   const [actionSuccess, setActionSuccess] = useMultiplayerState(
@@ -52,14 +76,19 @@ export const GameEngineProvider = ({ children }) => {
   );
 
   const players = usePlayersList(true);
+  const [missionPlayers, setMissionPlayers] = useMultiplayerState(
+    "missionPlayers",
+    []
+  );
   players.sort((a, b) => a.id.localeCompare(b.id)); // we sort players by id to have a consistent order through all clients
 
   const gameState = {
     timer,
-    round,
+    mission,
     phase,
     playerTurn,
     playerStart,
+    missionPlayers,
     players,
     gems,
     deck,
@@ -74,22 +103,16 @@ export const GameEngineProvider = ({ children }) => {
       const randomPlayer = randInt(0, players.length - 1); // we choose a random player to start
       setPlayerStart(randomPlayer, true);
       setPlayerTurn(randomPlayer, true);
-      setRound(1, true);
-      setDeck(
-        [
-          ...new Array(16).fill(0).map(() => "punch"),
-          ...new Array(24).fill(0).map(() => "grab"),
-          ...new Array(8).fill(0).map(() => "shield"),
-        ],
-        true
-      );
+      setMission(1, true);
+      const totalPlayers = players.length;
+      const NB_MISSON_PLAYERS = MISSION_PLAYERS[totalPlayers];
+      setMissionPlayers(NB_MISSON_PLAYERS, true);
       const spies = PLAYERS_SPIES[players.length];
       const resistance = players.length - spies;
       setRolesDeck([
         ...new Array(spies).fill(0).map(() => "spy"),
         ...new Array(resistance).fill(0).map(() => "resistance"),
       ]);
-      setGems(NB_GEMS, true);
 
       players.forEach((player) => {
         const randomPlayer = randInt(0, players.length - 1); // we choose a random player to start
@@ -122,9 +145,9 @@ export const GameEngineProvider = ({ children }) => {
   const performPlayerAction = () => {
     const player = players[getState("playerTurn")];
     console.log("Perform player action", player.id);
-    const selectedCard = player.getState("selectedCard");
+    const selectedNominationCard = player.getState("selectedNominationCard");
     const cards = player.getState("cards");
-    const card = cards[selectedCard];
+    const card = cards[selectedNominationCard];
     let success = true;
     if (card !== "shield") {
       player.setState("shield", false, true);
@@ -172,8 +195,8 @@ export const GameEngineProvider = ({ children }) => {
   const removePlayerCard = () => {
     const player = players[getState("playerTurn")];
     const cards = player.getState("cards");
-    const selectedCard = player.getState("selectedCard");
-    cards.splice(selectedCard, 1);
+    const selectedNominationCard = player.getState("selectedNominationCard");
+    cards.splice(selectedNominationCard, 1);
     player.setState("cards", cards, true);
   };
 
@@ -186,8 +209,8 @@ export const GameEngineProvider = ({ children }) => {
     if (!cards) {
       return "";
     }
-    const selectedCard = player.getState("selectedCard");
-    return cards[selectedCard];
+    const selectedNominationCard = player.getState("selectedNominationCard");
+    return cards[selectedNominationCard];
   };
 
   const phaseEnd = () => {
@@ -197,91 +220,110 @@ export const GameEngineProvider = ({ children }) => {
         setPhase("nominations", true);
         newTime = TIME_PHASE_NOMINATIONS;
         break;
-      case "nominations":
+      case "nominations": {
+        const newNominations = new Array(missionPlayers[mission - 1])
+          .fill(0)
+          .map(() => randInt(0, players.length - 1));
+        setNominations(newNominations, true);
         setPhase("voteNomination", true);
-        newTime = TIME_PHASE_NOMINATIONS;
+        newTime = TIME_PHASE_VOTE_NOMINATIONS;
         break;
-      case "voteNomination":
+      }
+      case "voteNomination": {
+        players.forEach((player) => {
+          const playerSelectedCard = player.getState("selectedNominationCard");
+          if (![0, 1].includes(playerSelectedCard)) {
+            player.setState("selectedNominationCard", randInt(0, 1), true);
+          }
+        });
         setPhase("voteResult", true);
-        newTime = TIME_PHASE_NOMINATIONS;
+        newTime = TIME_PHASE_NOMINATION_RESULT;
         break;
-      case "voteResult":
-        setPhase("voteMission", true);
-        newTime = TIME_PHASE_NOMINATIONS;
-        break;
-      case "voteMission":
-        setPhase("missionResult", true);
-        newTime = TIME_PHASE_NOMINATIONS;
-        break;
-
-      case "missionResult":
-        setPhase("missionResult", true);
-        newTime = TIME_PHASE_NOMINATIONS;
-        break;
-
-      case "voting":
-        // if (getCard() === "punch") {
-        //   setPhase("playerChoice", true);
-        //   newTime = TIME_PHASE_PLAYER_CHOICE;
-        // } else {
-        //   performPlayerAction();
-        //   setPhase("playerAction", true);
-        //   newTime = TIME_PHASE_PLAYER_ACTION;
-        // }
-        break;
-      case "playerChoice":
-        performPlayerAction();
-        setPhase("playerAction", true);
-        newTime = TIME_PHASE_PLAYER_ACTION;
-        break;
-      case "playerAction":
-        removePlayerCard();
-        const newPlayerTurn = (getState("playerTurn") + 1) % players.length;
-        if (newPlayerTurn === getState("playerStart")) {
-          // EVERY PLAYER PLAYED
-          if (getState("round") === NB_ROUNDS) {
-            // END OF GAME
-            console.log("End of game");
-            let maxGems = 0;
-            players.forEach((player) => {
-              if (player.getState("gems") > maxGems) {
-                maxGems = player.getState("gems");
-              }
-            });
-            players.forEach((player) => {
-              player.setState(
-                "winner",
-                player.getState("gems") === maxGems,
-                true
-              );
-              player.setState("cards", [], true);
-            });
-            setPhase("end", true);
-          } else {
-            // NEXT ROUND
-            console.log("Next round");
-            const newPlayerStart =
-              (getState("playerStart") + 1) % players.length; // we change the player who starts
-            setPlayerStart(newPlayerStart, true);
-            setPlayerTurn(newPlayerStart, true);
-            setRound(getState("round") + 1, true);
-            setPhase("voting", true);
-            newTime = TIME_PHASE_INTRODUCTIONS;
-          }
+      }
+      case "voteResult": {
+        let approveVote = players.filter(
+          (player) => player.getState("selectedNominationCard") === 1
+        ).length;
+        if (approveVote >= players.length / 2) {
+          newTime = TIME_PHASE_NOMINATION_RESULT;
+          setPhase("nominationSuccess", true);
         } else {
-          // NEXT PLAYER
-          console.log("Next player");
-          setPlayerTurn(newPlayerTurn, true);
-          if (getCard() === "punch") {
-            setPhase("playerChoice", true);
-            newTime = TIME_PHASE_PLAYER_CHOICE;
-          } else {
-            performPlayerAction();
-            setPhase("playerAction", true);
-            newTime = TIME_PHASE_PLAYER_ACTION;
-          }
+          setPhase("nominationFailure", true);
         }
         break;
+      }
+      case "nominationSuccess":
+        newTime = TIME_PHASE_MISSON_VOTE;
+        setNominationFailure(0, true);
+        setPhase("voteMission", true);
+        resetNominationVote();
+        break;
+      case "nominationFailure":
+        if (getState("nominationFailure") === 5) {
+          console.log("End of game");
+          setPhase("end", true);
+        } else {
+          setNextPlayerTurn();
+          setNominations([], true);
+          setNominationFailure(nominationFailure + 1, true);
+          resetNominationVote();
+          newTime = TIME_PHASE_NOMINATIONS;
+          setPhase("nominations", true);
+        }
+        break;
+      case "voteMission": {
+        players.forEach((player) => {
+          const selectedCard = player.getState("selectedMissionCard");
+          if (![0, 1].includes(selectedCard)) {
+            player.setState("selectedMissionCard", randInt(0, 1), true);
+          }
+        });
+        newTime = TIME_PHASE_MISSION_RESULT;
+        setPhase("missionResult", true);
+        break;
+      }
+      case "missionResult": {
+        let failureMission = players.some(
+          (player) => player.getState("selectedMissionCard") === 0
+        );
+        if (failureMission) {
+          setState("missionFailure", missionFailure + 1, true);
+        } else {
+          setState("missionSuccess", missionSuccess + 1, true);
+          resetMissionVote();
+        }
+        if (getState("nominationFailure") === 5) {
+          console.log("End of game");
+          setPhase("end", true);
+        }
+        newTime = TIME_PHASE_NOMINATIONS;
+        setNominations([], true);
+        setPhase("nominations");
+        break;
+      }
+      case "missionSuccess":
+        resetMissionVote();
+        if (getState("missionSuccess") === 3) {
+          console.log("End of game");
+          setPhase("end", true);
+        } else {
+          newTime = TIME_PHASE_NOMINATIONS;
+          setNominations([], true);
+          setNextPlayerTurn();
+          setPhase("nominations");
+        }
+        break;
+      case "missionFailure":
+        resetMissionVote();
+        if (getState("missionFailure") === 3) {
+          console.log("End of game");
+          setPhase("end", true);
+        } else {
+          newTime = TIME_PHASE_NOMINATIONS;
+          setNominations([], true);
+          setNextPlayerTurn();
+          setPhase("nominations");
+        }
       default:
         break;
     }
@@ -292,6 +334,23 @@ export const GameEngineProvider = ({ children }) => {
     paused: false,
   });
   const timerInterval = useRef();
+
+  const resetNominationVote = () => {
+    players.forEach((players) => {
+      players.setState("selectedNominationCard", 10, true);
+    });
+  };
+
+  const resetMissionVote = () => {
+    players.forEach((players) => {
+      players.setState("selectedMissionCard", 10, true);
+    });
+  };
+
+  const setNextPlayerTurn = () => {
+    const newPlayerTurn = (getState("playerTurn") + 1) % players.length;
+    setPlayerTurn(newPlayerTurn, true);
+  };
 
   const runTimer = () => {
     timerInterval.current = setInterval(() => {
