@@ -2,19 +2,21 @@ import { useAnimations, useGLTF } from "@react-three/drei";
 import { useEffect, useRef } from "react";
 
 const CHARACTERS = [
-  "Ninja_Male",
-  "Soldier_Male",
-  "Suit_Female",
-  "Suit_Male",
-  "Viking_Female",
-  "Witch",
-  "Wizard",
-  "Worker_Male",
+  "Dino",
+  "Fish",
+  "Frog",
+  "Monkroose",
+  "MushroomKing",
+  "Ninja",
+  "Orc_Skull",
+  "Orc",
+  "Tribal",
+  "Yeti",
 ];
 
 export const Character = ({ character = 0, animation = "Idle", ...props }) => {
   const { scene, animations } = useGLTF(
-    `/models/Characters_${CHARACTERS[character]}.gltf`
+    `/models/${CHARACTERS[character]}.gltf`
   );
 
   const ref = useRef();
