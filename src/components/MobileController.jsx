@@ -7,7 +7,13 @@ import {
 } from "@react-three/drei";
 import { useThree } from "@react-three/fiber";
 import { motion } from "framer-motion-3d";
-import { myPlayer, usePlayersList } from "playroomkit";
+import {
+  getState,
+  isHost,
+  myPlayer,
+  setState,
+  usePlayersList,
+} from "playroomkit";
 import { degToRad } from "three/src/math/MathUtils";
 import { useGameEngine } from "../hooks/useGameEngine";
 import { Card } from "./Card";
@@ -21,6 +27,7 @@ import { useControls } from "leva";
 import { PlayerMobile } from "./PlayerMobile";
 import { VoteCard } from "./VoteCard";
 import { RejectCard } from "./RejectCard";
+import { Bunny } from "./Bunny";
 
 export const MobileController = () => {
   const me = myPlayer();
@@ -28,6 +35,7 @@ export const MobileController = () => {
     useGameEngine();
   const myIndex = players.findIndex((player) => player.id === me.id);
   const myRole = me.getState("role");
+  const isPlayerTurn = phase === "nominations" && myIndex === playerTurn;
 
   const cards = me.getState("cards") || [];
   usePlayersList(true); // force rerender when player change
@@ -37,11 +45,26 @@ export const MobileController = () => {
   const { cylinderRotation } = useControls({
     cylinderRotation: { x: 0, y: 0, z: 0 },
   });
-
+  const onPlayerSelect = (playerIndex) => {
+    if (isPlayerTurn) {
+      let newNominations = [];
+      if (nominations.includes(playerIndex)) {
+        newNominations = nominations.filter((item) => item !== playerIndex);
+      } else {
+        newNominations = [...nominations, playerIndex];
+      }
+      setState("nominations", newNominations, true);
+    }
+  };
   return (
     <group position-y={-1}>
       <ContactShadows opacity={0.12} />
       <group scale={scalingRatio}>
+        {isHost() && (
+          <group position-z={3.5} position-x={0}>
+            <Bunny scale={0.4} />
+          </group>
+        )}
         <Center disableZ>
           <group position={[0, 0, -30]}>
             {[1, 2, 3, 4, 5].map((i, index) => (
@@ -59,13 +82,40 @@ export const MobileController = () => {
           </group>
         </Center>
         <group position={[0, 0, -10]}>
-          <Center>
+          <Center disableY disableZ>
             {players.map((player, index) => (
-              <PlayerMobile
-                key={index}
-                player={player}
-                index={index}
-              ></PlayerMobile>
+              <motion.group
+                key={player.id}
+                position-x={playerIdx++ * 1.2}
+                position-z={-2}
+                animate={nominations.includes(index) ? "selected" : ""}
+                scale={0.4}
+                variants={{
+                  selected: {
+                    z: 0,
+                    scale: 0.5,
+                  },
+                }}
+              >
+                <mesh
+                  onClick={() => onPlayerSelect(index)}
+                  position-y={1}
+                  visible={false}
+                >
+                  <boxGeometry args={[1.2, 2, 0.5]} />
+                  <meshStandardMaterial color="hotpink" />
+                </mesh>
+                <PlayerName
+                  name={player.state.profile.name}
+                  fontSize={0.3}
+                  position-y={3}
+                />
+                <Character
+                  character={index}
+                  animation={nominations.includes(index) ? "Yes" : "Idle"}
+                  name={player.state.profile.name}
+                />
+              </motion.group>
             ))}
           </Center>
         </group>
