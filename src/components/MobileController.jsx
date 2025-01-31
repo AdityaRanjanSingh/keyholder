@@ -31,7 +31,7 @@ import { Bunny } from "./Bunny";
 
 export const MobileController = () => {
   const me = myPlayer();
-  const { players, phase, playerTurn, nominations, setNominations } =
+  const { players, phase, playerTurn, nominations, setNominations, next } =
     useGameEngine();
   const myIndex = players.findIndex((player) => player.id === me.id);
   const myRole = me.getState("role");
@@ -63,6 +63,7 @@ export const MobileController = () => {
     setTimeout(() => {
       setBunnyAnimation("Idle");
     }, 5);
+    setState("next", next + 1, true);
   };
   return (
     <group position-y={-1}>
@@ -188,14 +189,17 @@ export const MobileController = () => {
           {["failure", "success"].map((card, index) => {
             let cardAnimState = "";
             const selected = index === me.getState("selectedMissionCard");
-            if (phase === "voteMission") {
-              cardAnimState = "cardSelection";
-              if (selected) {
-                cardAnimState = "cardSelectionSelected";
-              }
-            } else {
-              if (selected) {
-                cardAnimState = "selected";
+            const isNominated = nominations.includes(myIndex);
+            if (isNominated) {
+              if (phase === "voteMission") {
+                cardAnimState = "cardSelection";
+                if (selected) {
+                  cardAnimState = "cardSelectionSelected";
+                }
+              } else {
+                if (selected) {
+                  cardAnimState = "selected";
+                }
               }
             }
             return (
