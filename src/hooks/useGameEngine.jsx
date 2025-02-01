@@ -89,7 +89,7 @@ export const GameEngineProvider = ({ children }) => {
     gems,
     deck,
     nominations,
-    actionSuccess,
+    missionSuccess,
     next,
   };
 
@@ -113,16 +113,6 @@ export const GameEngineProvider = ({ children }) => {
       setNominations([], true);
       resetMissionVote();
       resetNominationVote();
-
-      players.forEach((player) => {
-        const randomPlayer = randInt(0, players.length - 1); // we choose a random player to start
-
-        console.log("Setting up player", player.id);
-        player.setState("cards", [], true);
-        player.setState("gems", 0, true);
-        player.setState("shield", false, true);
-        player.setState("winner", false, true);
-      });
       distributeRoles(players.length);
       setPhase("introductions", true);
     }
@@ -251,7 +241,7 @@ export const GameEngineProvider = ({ children }) => {
       }
       case "missionSuccess":
         resetMissionVote();
-        if (getState("missionSuccess") === 3) {
+        if (missionSuccess === 3) {
           setPhase("end", true);
         } else if (mission === 5) {
           setPhase("end", true);
@@ -265,7 +255,7 @@ export const GameEngineProvider = ({ children }) => {
         break;
       case "missionFailure":
         resetMissionVote();
-        if (getState("missionFailure") === 3) {
+        if (missionFailure === 3) {
           console.log("End of game");
           setPhase("end", true);
         } else if (mission === 5) {

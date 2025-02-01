@@ -1,10 +1,13 @@
 import { Text, useFont, useGLTF, useTexture } from "@react-three/drei";
 import React from "react";
+import { degToRad } from "three/src/math/MathUtils.js";
 
 const CARD_DESCRIPTIONS = {
-  punch: "Punch another pirate and make it drop a gem",
-  shield: "Protect yourself from an attack",
-  grab: "Grab a gem from the treasure. If no gem is left, you get nothing",
+  support: "Support the mission to be successful",
+  sabotage: "Sabotage the mission to make if failure",
+  approve: "Approve the vote",
+  reject: "Reject the vote",
+
 };
 
 export function Card({ type = "shield", ...props }) {
