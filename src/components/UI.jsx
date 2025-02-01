@@ -119,7 +119,7 @@ export const UI = () => {
         <h2 className="text-2xl font-bold text-center uppercase">
           Mission {mission}/{NB_MISSIONS}
         </h2>
-        <div className=" flex items-center gap-1 w-14">
+        {/* <div className=" flex items-center gap-1 w-14">
           <svg
             xmlns="http://www.w3.org/2000/svg"
             fill="none"
@@ -135,7 +135,7 @@ export const UI = () => {
             />
           </svg>
           <h2 className="text-2xl font-bold text-center uppercase">{timer}</h2>
-        </div>
+        </div> */}
       </div>
       <div className="flex-1" />
       <div className="p-4 w-full">

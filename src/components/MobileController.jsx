@@ -41,7 +41,7 @@ export const MobileController = () => {
 
   const [bunnyAnimation, setBunnyAnimation] = useState("Idle");
 
-  const cards = me.getState("cards") || [];
+  const role = me.getState("role") || "";
   usePlayersList(true); // force rerender when player change
   let playerIdx = 0;
   const viewport = useThree((state) => state.viewport);
@@ -74,38 +74,15 @@ export const MobileController = () => {
       <group scale={scalingRatio}>
         {isHost() && (
           <>
-            <group position-z={3.5} position-x={0} position-y={1}>
+            <group position-z={3.5} position-x={0} position-y={0}>
               <mesh onClick={() => onBunnyPress()} visible={false}>
                 <boxGeometry args={[1, 1.5, 1]} />
                 <meshStandardMaterial color="hotpink" />
               </mesh>
               <Bunny scale={0.2} animation={bunnyAnimation} />
             </group>
-            {/* <group position-z={3.5} position-x={1} position-y={2}>
-              <mesh onClick={() => onBunnyPress()} visible={false}>
-                <boxGeometry args={[1, 1.5, 1]} />
-                <meshStandardMaterial color="hotpink" />
-              </mesh>
-              <Cactoro scale={0.2} animation={bunnyAnimation} />
-            </group> */}
           </>
         )}
-        <Center disableZ>
-          <group position={[0, 0, -30]}>
-            {[1, 2, 3, 4, 5].map((i, index) => (
-              <mesh
-                position-x={index * 1.8}
-                key={index}
-                rotation-z={degToRad(90)}
-                rotation-y={degToRad(90)}
-                scale={1.5}
-              >
-                <cylinderGeometry args={[0.5, 0.5, 0.2]} />
-                <meshStandardMaterial color={"orange"}></meshStandardMaterial>
-              </mesh>
-            ))}
-          </group>
-        </Center>
         <group position={[0, 0, -10]}>
           <Center disableY disableZ>
             {players.map((player, index) => (
@@ -132,8 +109,13 @@ export const MobileController = () => {
                 </mesh>
                 <PlayerName
                   name={player.state.profile.name}
-                  fontSize={0.3}
+                  fontSize={0.5}
                   position-y={3}
+                />
+                <PlayerName
+                  name={role === "spy"|| phase==="end" ? players[index].getState("role") : ""}
+                  fontSize={0.3}
+                  position-y={3.5}
                 />
                 <Character
                   character={index}
@@ -143,59 +125,6 @@ export const MobileController = () => {
               </motion.group>
             ))}
           </Center>
-        </group>
-        <group position-y={1}>
-          {["reject", "approve"].map((card, index) => {
-            let cardAnimState = "";
-            const selected = index === me.getState("selectedNominationCard");
-            if (phase === "voteNomination") {
-              cardAnimState = "cardSelection";
-              if (selected) {
-                cardAnimState = "cardSelectionSelected";
-              }
-            } else {
-              if (selected) {
-                cardAnimState = "selected";
-              }
-            }
-            return (
-              <motion.group
-                key={index}
-                position-x={1.2 + index * 0.1}
-                position-y={-1.5 + index * 0.1}
-                position-z={-index * 0.1}
-                animate={cardAnimState}
-                variants={{
-                  selected: {
-                    x: -0.1,
-                    y: 0.1,
-                    z: 0.1,
-                  },
-                  cardSelection: {
-                    x: index % 2 ? 0.6 : -0.6,
-                    y: Math.floor(index / 2) * 1.6,
-                    z: -0.5,
-                  },
-                  cardSelectionSelected: {
-                    x: 0,
-                    y: 0,
-                    z: 2,
-                    rotateX: degToRad(-45),
-                    rotateY: 0,
-                    rotateZ: 0,
-                    scale: 1.1,
-                  },
-                }}
-                onClick={() => {
-                  if (phase === "voteNomination") {
-                    me.setState("selectedNominationCard", index, true);
-                  }
-                }}
-              >
-                <Card type={card} />
-              </motion.group>
-            );
-          })}
         </group>
         <group position-y={1}>
           {["reject", "approve"].map((card, index) => {

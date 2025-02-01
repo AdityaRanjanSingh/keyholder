@@ -3,13 +3,11 @@ import {
   getState,
   isHost,
   onPlayerJoin,
-  setState,
   useMultiplayerState,
   usePlayersList,
 } from "playroomkit";
 import React, { useEffect, useRef } from "react";
 import { randInt } from "three/src/math/MathUtils";
-import { ROLES } from "../constants";
 
 const GameEngineContext = React.createContext();
 
