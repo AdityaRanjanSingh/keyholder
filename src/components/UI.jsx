@@ -15,12 +15,9 @@ export const UI = () => {
   const {
     phase,
     startGame,
-    timer,
     playerTurn,
     players,
     mission,
-    getCard,
-    actionSuccess,
     missionSuccess,
     nominations,
     missionPlayers,
@@ -98,13 +95,7 @@ export const UI = () => {
       return;
     }
     let audioToPlay;
-    if (phase === "playerAction") {
-      if (actionSuccess) {
-        audioToPlay = audios[getCard()];
-      } else {
-        audioToPlay = audios.fail;
-      }
-    }
+
     if (phase === "voting") {
       audioToPlay = audios.cards;
     }
@@ -112,31 +103,15 @@ export const UI = () => {
       audioToPlay.currentTime = 0;
       audioToPlay.play();
     }
-  }, [phase, actionSuccess, audioEnabled]);
+  }, [phase, audioEnabled]);
   return (
     <div className="text-white drop-shadow-xl fixed top-0 left-0 right-0 bottom-0 z-10 flex flex-col pointer-events-none">
       <div className="p-4 w-full flex items-center justify-between">
         <h2 className="text-2xl font-bold text-center uppercase">
           Mission {mission}/{NB_MISSIONS}
         </h2>
-        {/* <div className=" flex items-center gap-1 w-14">
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            fill="none"
-            viewBox="0 0 24 24"
-            strokeWidth={2.5}
-            stroke="currentColor"
-            className="w-6 h-6"
-          >
-            <path
-              strokeLinecap="mission"
-              strokeLinejoin="mission"
-              d="M12 6v6h4.5m4.5 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"
-            />
-          </svg>
-          <h2 className="text-2xl font-bold text-center uppercase">{timer}</h2>
-        </div> */}
       </div>
+
       <div className="flex-1" />
       <div className="p-4 w-full">
         <h1 className="text-2xl font-bold text-center">{label}</h1>

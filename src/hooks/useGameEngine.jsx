@@ -6,27 +6,13 @@ import {
   useMultiplayerState,
   usePlayersList,
 } from "playroomkit";
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useMemo, useRef } from "react";
 import { randInt } from "three/src/math/MathUtils";
 
 const GameEngineContext = React.createContext();
 
-const TIME_PHASE_INTRODUCTIONS = 10;
-const TIME_PHASE_NOMINATIONS = 10;
-const TIME_PHASE_VOTE_NOMINATIONS = 10;
-const TIME_PHASE_MISSON_VOTE = 10;
-const TIME_PHASE_MISSION_RESULT = 10;
 export const NB_MISSIONS = 5;
-const NB_GEMS = 3;
-const PLAYERS_SPIES = {
-  3: 1,
-  4: 1,
-  5: 2,
-  6: 2,
-  7: 3,
-  8: 3,
-  9: 4,
-};
+
 const MISSION_PLAYERS = {
   4: [1, 2, 2, 2, 2],
   5: [2, 3, 2, 3, 3],
@@ -36,7 +22,24 @@ const MISSION_PLAYERS = {
   9: [3, 4, 4, 5, 5],
   10: [3, 4, 4, 5, 5],
 };
-
+const getNumberOfSpies = (number) => {
+  switch (number) {
+    case 3:
+    case 4:
+      return 1;
+    case 5:
+    case 6:
+      return 2;
+    case 7:
+    case 8:
+      return 3;
+    case 9:
+    case 10:
+      return 4;
+    default:
+      return 1;
+  }
+};
 export const GameEngineProvider = ({ children }) => {
   // GAME STATE
   const [timer, setTimer] = useMultiplayerState("timer", 0);
@@ -60,16 +63,15 @@ export const GameEngineProvider = ({ children }) => {
   const [deck, setDeck] = useMultiplayerState("deck", []);
   const [rolesDeck, setRolesDeck] = useMultiplayerState("rolesDeck", []);
 
-  const [gems, setGems] = useMultiplayerState("gems", NB_GEMS);
   const [nominations, setNominations] = useMultiplayerState("nominations", []);
   const [next, setNext] = useMultiplayerState("next", 0);
 
-  const [actionSuccess, setActionSuccess] = useMultiplayerState(
-    "actionSuccess",
-    true
-  );
-
   const players = usePlayersList(true);
+
+  const NB_SPIES = useMemo(
+    () => getNumberOfSpies(players.length),
+    [players.length]
+  );
   const [missionPlayers, setMissionPlayers] = useMultiplayerState(
     "missionPlayers",
     []
@@ -84,7 +86,6 @@ export const GameEngineProvider = ({ children }) => {
     playerStart,
     missionPlayers,
     players,
-    gems,
     deck,
     nominations,
     missionSuccess,
@@ -94,7 +95,6 @@ export const GameEngineProvider = ({ children }) => {
   const startGame = () => {
     if (isHost()) {
       console.log("Start game");
-      setTimer(TIME_PHASE_INTRODUCTIONS, true);
       const randomPlayer = randInt(0, players.length - 1); // we choose a random player to start
       setPlayerStart(randomPlayer, true);
       setPlayerTurn(randomPlayer, true);
@@ -102,21 +102,23 @@ export const GameEngineProvider = ({ children }) => {
       const totalPlayers = players.length;
       const NB_MISSON_PLAYERS = MISSION_PLAYERS[totalPlayers];
       setMissionPlayers(NB_MISSON_PLAYERS, true);
-      const spies = PLAYERS_SPIES[players.length];
-      const resistance = players.length - spies;
-      setRolesDeck([
-        ...new Array(spies).fill(0).map(() => "spy"),
-        ...new Array(resistance).fill(0).map(() => "resistance"),
-      ]);
+      const resistance = players.length - NB_SPIES;
+      setRolesDeck(
+        [
+          ...new Array(NB_SPIES).fill(0).map(() => "spy"),
+          ...new Array(resistance).fill(0).map(() => "resistance"),
+        ],
+        true
+      );
       setNominations([], true);
       resetMissionVote();
       resetNominationVote();
-      distributeRoles(players.length);
+      distributeRoles();
       setPhase("introductions", true);
     }
   };
 
-  const distributeRoles = (number) => {
+  const distributeRoles = () => {
     const newDeck = [...getState("rolesDeck")];
     const shuffledArray = newDeck.sort((a, b) => 0.5 - Math.random());
     players.forEach((player) => {
@@ -147,13 +149,12 @@ export const GameEngineProvider = ({ children }) => {
     switch (getState("phase")) {
       case "introductions":
         setPhase("nominations", true);
-        newTime = TIME_PHASE_NOMINATIONS;
         break;
       case "nominations": {
         const newNominations = nominations;
         const missingNominations =
           missionPlayers[mission - 1] - newNominations.length;
-        if (missingNominations)
+        if (missingNominations && missingNominations !== 0)
           new Array(missingNominations).fill(0).forEach(() => {
             const random = randInt(0, players.length - 1);
             const addRandomToNomination = (random) => {
@@ -168,7 +169,6 @@ export const GameEngineProvider = ({ children }) => {
           });
         setNominations(newNominations, true);
         setPhase("voteNomination", true);
-        newTime = TIME_PHASE_VOTE_NOMINATIONS;
         break;
       }
       case "voteNomination": {
@@ -196,19 +196,18 @@ export const GameEngineProvider = ({ children }) => {
         break;
       }
       case "nominationSuccess":
-        newTime = TIME_PHASE_MISSON_VOTE;
         setPhase("voteMission", true);
         resetNominationVote();
         break;
       case "nominationFailure":
         if (getState("nominationFailure") === 5) {
-          console.log("End of game");
+          setNominations([], true);
           setPhase("end", true);
         } else {
           setNextPlayerTurn();
+          resetMissionVote();
           setNominations([], true);
           resetNominationVote();
-          newTime = TIME_PHASE_NOMINATIONS;
           setPhase("nominations", true);
         }
         break;
@@ -220,7 +219,6 @@ export const GameEngineProvider = ({ children }) => {
             player.setState("selectedMissionCard", randInt(0, 1), true);
           }
         });
-        newTime = TIME_PHASE_MISSION_RESULT;
         setPhase("missionResult", true);
         break;
       }
@@ -244,7 +242,6 @@ export const GameEngineProvider = ({ children }) => {
         } else if (mission === 5) {
           setPhase("end", true);
         } else {
-          newTime = TIME_PHASE_NOMINATIONS;
           setNominations([], true);
           setNextPlayerTurn();
           setPhase("nominations");
@@ -259,7 +256,6 @@ export const GameEngineProvider = ({ children }) => {
         } else if (mission === 5) {
           setPhase("end", true);
         } else {
-          newTime = TIME_PHASE_NOMINATIONS;
           setNominations([], true);
           setNextPlayerTurn();
           setPhase("nominations");

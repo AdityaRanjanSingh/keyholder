@@ -16,7 +16,7 @@ export const Gameboard = () => {
   const viewport = useThree((state) => state.viewport);
   const scalingRatio = Math.min(1, viewport.width / 12);
 
-  const { deck, gems, players, phase, getCard } = useGameEngine();
+  const { deck,  players, phase, getCard } = useGameEngine();
 
   const shadows = useMemo(
     () => (
@@ -95,7 +95,7 @@ export const Gameboard = () => {
         ))}
       </group>
       {/* TREASURE */}
-      {[...Array(gems)].map((_, index) => (
+      {[...Array(4)].map((_, index) => (
         <Gltf
           key={index}
           src="/models/UI_Gem_Blue.gltf"

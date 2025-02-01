@@ -113,7 +113,11 @@ export const MobileController = () => {
                   position-y={3}
                 />
                 <PlayerName
-                  name={role === "spy"|| phase==="end" ? players[index].getState("role") : ""}
+                  name={
+                    role === "spy" || phase === "end"
+                      ? players[index].getState("role")
+                      : ""
+                  }
                   fontSize={0.3}
                   position-y={3.5}
                 />
@@ -127,6 +131,13 @@ export const MobileController = () => {
           </Center>
         </group>
         <group position-y={1}>
+          <PlayerName
+            position-x={-1}
+            position-y={-2.5}
+            position-z={0}
+            fontSize={0.15}
+            name="Mission cards"
+          ></PlayerName>
           {["reject", "approve"].map((card, index) => {
             let cardAnimState = "";
             const selected = index === me.getState("selectedNominationCard");
@@ -143,7 +154,7 @@ export const MobileController = () => {
             return (
               <motion.group
                 key={index}
-                position-x={1.2 + index * 0.1}
+                position-x={1 + index * 0.1}
                 position-y={-1.5 + index * 0.1}
                 position-z={-index * 0.1}
                 animate={cardAnimState}
@@ -180,6 +191,13 @@ export const MobileController = () => {
           })}
         </group>
         <group position-y={1}>
+          <PlayerName
+            fontSize={0.15}
+            position-x={1}
+            position-y={-2.5}
+            position-z={0}
+            name="Nomination cards"
+          ></PlayerName>
           {["sabotage", "support"].map((card, index) => {
             let cardAnimState = "";
             const selected = index === me.getState("selectedMissionCard");
@@ -203,7 +221,7 @@ export const MobileController = () => {
             return (
               <motion.group
                 key={index}
-                position-x={-1.2 + index * 0.1}
+                position-x={-1 + index * 0.1}
                 position-y={-1.5 + index * 0.1}
                 position-z={-index * 0.1}
                 animate={cardAnimState}
