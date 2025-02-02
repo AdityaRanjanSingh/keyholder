@@ -19,21 +19,31 @@ export const Gameboard = () => {
   const scalingRatio = Math.min(1, viewport.width / 12);
 
   const { deck, players, phase, nominations } = useGameEngine();
+  const shuffle = (array) => {
+    let i = array.length,
+      j,
+      temp;
+    while (--i > 0) {
+      j = Math.floor(Math.random() * (i + 1));
+      temp = array[j];
+      array[j] = array[i];
+      array[i] = temp;
+    }
+    return array;
+  };
+  const voteResult = useMemo(() => {
+    const array = players
+      .map((player) => player.getState("selectedNominationCard"))
+      .map((item) => (item === 0 ? "reject" : "approve"));
+    return shuffle(array);
+  }, [phase === "voteResult"]);
 
-  const voteResult = useMemo(
-    () =>
-      players
-        .map((player) => player.getState("selectedNominationCard"))
-        .map((item) => (item === 0 ? "reject" : "approve")),
-    [phase === "voteResult"]
-  );
-  const missionResult = useMemo(
-    () =>
-      nominations
-        .map((idx) => players[idx].getState("selectedMissionCard"))
-        .map((item) => (item === 0 ? "sabotage" : "support")),
-    [phase === "missionResult"]
-  );
+  const missionResult = useMemo(() => {
+    const array = nominations
+      .map((idx) => players[idx].getState("selectedMissionCard"))
+      .map((item) => (item === 0 ? "sabotage" : "support"));
+    return shuffle(array);
+  }, [phase === "missionResult"]);
 
   const isNominated = useCallback(
     (index) => nominations.includes(index),
