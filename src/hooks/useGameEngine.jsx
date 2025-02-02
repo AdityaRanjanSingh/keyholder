@@ -129,7 +129,7 @@ export const GameEngineProvider = ({ children }) => {
   };
   useEffect(() => {
     startGame();
-    onPlayerJoin(startGame); // we restart the game when a new player joins
+    // onPlayerJoin(startGame); // we restart the game when a new player joins
   }, []);
 
   const getCard = () => {
@@ -306,7 +306,7 @@ export const GameEngineProvider = ({ children }) => {
   };
 
   useEffect(() => {
-    phaseEnd();
+    if (isHost()) phaseEnd();
   }, [next]);
 
   const clearTimer = () => {

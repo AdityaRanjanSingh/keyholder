@@ -35,3 +35,13 @@ export const Character = ({ character = 0, animation = "Idle", ...props }) => {
     </group>
   );
 };
+useGLTF.preload("/models/Dino.gltf");
+useGLTF.preload("/models/Fish.gltf");
+useGLTF.preload("/models/Frog.gltf");
+useGLTF.preload("/models/Monkroose.gltf");
+useGLTF.preload("/models/MushroomKing.gltf");
+useGLTF.preload("/models/Ninja.gltf");
+useGLTF.preload("/models/Orc_Skull.gltf");
+useGLTF.preload("/models/Orc.gltf");
+useGLTF.preload("/models/Tribal.gltf");
+useGLTF.preload("/models/Yeti.gltf");
