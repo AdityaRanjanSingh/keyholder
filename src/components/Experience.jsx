@@ -8,6 +8,9 @@ export const Experience = () => {
   return (
     <>
       {isStreamScreen() && <OrbitControls maxPolarAngle={degToRad(80)} />}
+      {!isStreamScreen() && (
+        <OrbitControls maxPolarAngle={degToRad(80)} enableRotate={false} />
+      )}
       {isStreamScreen() ? <Gameboard /> : <MobileController />}
       <Environment preset="dawn" background blur={2} />
     </>

@@ -6,17 +6,39 @@ import {
 } from "@react-three/drei";
 import { useThree } from "@react-three/fiber";
 import { motion } from "framer-motion-3d";
-import { useMemo } from "react";
+import { useMemo, useCallback } from "react";
 import { degToRad } from "three/src/math/MathUtils";
 import { useGameEngine } from "../hooks/useGameEngine";
 import { Card } from "./Card";
 import { Player } from "./Player";
+import { useControls } from "leva";
+import { Zombie } from "./Zombie";
 
 export const Gameboard = () => {
   const viewport = useThree((state) => state.viewport);
   const scalingRatio = Math.min(1, viewport.width / 12);
 
-  const { deck,  players, phase, getCard } = useGameEngine();
+  const { deck, players, phase, nominations } = useGameEngine();
+
+  const voteResult = useMemo(
+    () =>
+      players
+        .map((player) => player.getState("selectedNominationCard"))
+        .map((item) => (item === 0 ? "reject" : "approve")),
+    [phase === "voteResult"]
+  );
+  const missionResult = useMemo(
+    () =>
+      nominations
+        .map((idx) => players[idx].getState("selectedMissionCard"))
+        .map((item) => (item === 0 ? "sabotage" : "support")),
+    [phase === "missionResult"]
+  );
+
+  const isNominated = useCallback(
+    (index) => nominations.includes(index),
+    [nominations]
+  );
 
   const shadows = useMemo(
     () => (
@@ -59,25 +81,23 @@ export const Gameboard = () => {
       />
       {shadows}
 
-      {/* DECK */}
-      <group position-x={4} position-z={-2}>
-        {deck.map((_, index) => (
+      {/* Vote Result Deck */}
+      <group position-x={8} position-z={0} position-y={1}>
+        {voteResult.map((type, index) => (
           <motion.group
             key={index}
             position-y={index * 0.015}
             rotation-y={index % 2 ? degToRad(2) : 0}
-            animate={
-              phase === "playerAction" && index === deck.length - 1
-                ? "selected"
-                : ""
-            }
+            rotation-x={degToRad(-45)}
+            animate={phase === "voteResult" ? "selected" : ""}
             variants={{
               selected: {
-                x: -2,
-                y: 1.5,
-                z: -2,
-                rotateY: degToRad(120),
-                scale: 1.5,
+                x: -5,
+                y: 0,
+                z: -7,
+                rotateY: degToRad(180),
+                rotateX: degToRad(0),
+                rotateZ: degToRad(0),
               },
             }}
           >
@@ -86,33 +106,71 @@ export const Gameboard = () => {
               variants={{
                 selected: {
                   rotateX: degToRad(-45),
+                  x: index * -1.2,
                 },
               }}
             >
-              <Card type={getCard() || undefined} />
+              <Card type={type || undefined} />
             </motion.group>
           </motion.group>
         ))}
       </group>
-      {/* TREASURE */}
-      {[...Array(4)].map((_, index) => (
-        <Gltf
-          key={index}
-          src="/models/UI_Gem_Blue.gltf"
-          position-x={index * 0.5}
-          position-y={0.25}
-          scale={0.5}
-        />
-      ))}
+      {/* Mission Result Deck */}
+      <group position-x={10} position-z={0} position-y={1}>
+        {missionResult.map((type, index) => (
+          <motion.group
+            key={index}
+            position-y={index * 0.015}
+            rotation-y={index % 2 ? degToRad(2) : 0}
+            rotation-x={degToRad(-45)}
+            animate={phase === "missionResult" ? "selected" : ""}
+            variants={{
+              selected: {
+                x: -5,
+                y: 0,
+                z: -7,
+                rotateY: degToRad(180),
+                rotateX: degToRad(0),
+                rotateZ: degToRad(0),
+              },
+            }}
+          >
+            <motion.group
+              rotation-x={degToRad(90)}
+              variants={{
+                selected: {
+                  rotateX: degToRad(-45),
+                  x: index * -1.2,
+                },
+              }}
+            >
+              <Card type={type || undefined} />
+            </motion.group>
+          </motion.group>
+        ))}
+      </group>
       {/* CHARACTERS */}
-      {players.map((player, index) => (
-        <group key={player.id}>
-          <Player index={index} player={player} />
-        </group>
-      ))}
+      <motion.group position={[-2.5, 0, 0]}>
+        {players.map((player, index) => (
+          <motion.group
+            key={player.id}
+            animate={isNominated(index) ? "nominated" : ""}
+            position-x={index * 0.3}
+            variants={{
+              nominated: {
+                z: -3,
+              },
+            }}
+          >
+            <Player index={index} player={player} />
+          </motion.group>
+        ))}
+      </motion.group>
+      <motion.group>
+        <Zombie position-x={1} position-z={-2} />
+      </motion.group>
     </group>
   );
 };
 
 useGLTF.preload("/models/Gameboard.glb");
-useGLTF.preload("/models/UI_Gem_Blue.gltf");

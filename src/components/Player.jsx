@@ -7,7 +7,7 @@ import { Character } from "./Character";
 import { PlayerName } from "./PlayerName";
 
 export const Player = ({ index, player }) => {
-  const { phase, playerTurn, players, getCard } = useGameEngine();
+  const { phase, playerTurn, players, getCard, nominations } = useGameEngine();
   const isPlayerTurn = phase === "playerAction" && index === playerTurn;
   const currentPlayer = players[playerTurn];
   const currentCard = getCard();
@@ -18,6 +18,14 @@ export const Player = ({ index, player }) => {
     index === currentPlayer.getState("playerTarget");
   const isWinner = player.getState("winner");
   const isSpy = player.getState("role") === "spy";
+
+  const myIndex = players.findIndex((pl) => pl.id === player.id);
+
+  const isMissionInProgress =
+    phase === "voteMission" && nominations.includes(myIndex);
+
+  const isMissionFailure =
+    phase === "missionFailure" && nominations.includes(myIndex);
 
   const [animation, setAnimation] = useState("Idle");
 
@@ -45,6 +53,15 @@ export const Player = ({ index, player }) => {
     if (isWinner) {
       cardAnim = "Wave";
     }
+    if (isMissionInProgress) {
+      cardAnim = "Punch";
+    }
+    if (isMissionFailure) {
+      cardAnim = "Death";
+    }
+    if (isMissionFailure) {
+      cardAnim = "Death";
+    }
     setAnimation(cardAnim);
   }, [currentCard, playerTurn, phase, isPlayerPunched, isWinner, isSpy]);
 
@@ -63,11 +80,7 @@ export const Player = ({ index, player }) => {
           // shield
           scale: 1.5,
         },
-        Punch: {
-          // grab
-          x: 0,
-          z: 0.4,
-        },
+        Punch: {},
         Duck: {
           // punched
           z: -0.4,
@@ -76,7 +89,7 @@ export const Player = ({ index, player }) => {
         },
       }}
     >
-      <PlayerName name={player.state.profile.name} position-y={0.8} />
+      <PlayerName name={player.state.profile.name} position-y={1.7} />
       <Character
         scale={0.5}
         character={index}

@@ -5,7 +5,7 @@ import { isHost, isStreamScreen } from "playroomkit";
 import { Experience } from "./components/Experience";
 import { UI } from "./components/UI";
 
-const DEBUG = true;
+const DEBUG = false;
 
 function App() {
   return (
@@ -14,7 +14,7 @@ function App() {
       <Canvas
         shadows
         camera={{
-          position: isStreamScreen() ? [14, 10, 0] : [0, 4, 12],
+          position: isStreamScreen() ? [5, 10, -25] : [0, 4, 12],
           fov: 30,
         }}
       >

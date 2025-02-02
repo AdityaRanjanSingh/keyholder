@@ -154,7 +154,7 @@ export const GameEngineProvider = ({ children }) => {
         const newNominations = nominations;
         const missingNominations =
           missionPlayers[mission - 1] - newNominations.length;
-        if (missingNominations && missingNominations !== 0)
+        if (missingNominations && missingNominations !== 0) {
           new Array(missingNominations).fill(0).forEach(() => {
             const random = randInt(0, players.length - 1);
             const addRandomToNomination = (random) => {
@@ -167,8 +167,10 @@ export const GameEngineProvider = ({ children }) => {
             };
             addRandomToNomination(random);
           });
-        setNominations(newNominations, true);
+          setNominations(newNominations, true);
+        }
         setPhase("voteNomination", true);
+
         break;
       }
       case "voteNomination": {
@@ -244,7 +246,7 @@ export const GameEngineProvider = ({ children }) => {
         } else {
           setNominations([], true);
           setNextPlayerTurn();
-          setPhase("nominations");
+          setPhase("nominations", true);
           setMission(mission + 1);
         }
         break;
@@ -258,7 +260,7 @@ export const GameEngineProvider = ({ children }) => {
         } else {
           setNominations([], true);
           setNextPlayerTurn();
-          setPhase("nominations");
+          setPhase("nominations", true);
           setMission(mission + 1);
         }
       default:
