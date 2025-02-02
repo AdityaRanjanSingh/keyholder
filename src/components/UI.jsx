@@ -59,6 +59,9 @@ export const UI = () => {
         ? "Support or sabotage mission"
         : "Mission in progress";
       break;
+    case "missionResult":
+      label = "Checking mission status";
+      break;
     case "missionSuccess":
       label = "Mission is successful";
       break;
