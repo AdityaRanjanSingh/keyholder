@@ -308,7 +308,7 @@ export const GameEngineProvider = ({ children }) => {
   };
 
   useEffect(() => {
-    if (isHost()) phaseEnd();
+    if (isHost() && next) phaseEnd();
   }, [next]);
 
   const clearTimer = () => {

@@ -4,6 +4,7 @@ import { NB_MISSIONS, useGameEngine } from "../hooks/useGameEngine";
 
 const audios = {
   background: new Audio("/audios/Drunken Sailor - Cooper Cannell.mp3"),
+  introductions: new Audio("/audios/introduction.mp3"),
   punch: new Audio("/audios/punch.mp3"),
   shield: new Audio("/audios/shield.mp3"),
   grab: new Audio("/audios/grab.mp3"),
@@ -81,23 +82,15 @@ export const UI = () => {
     setAudioEnabled((prev) => !prev);
   };
 
-  useEffect(() => {
-    if (audioEnabled) {
-      audios.background.play();
-      audios.background.loop = true;
-    } else {
-      audios.background.pause();
-    }
-    return () => {
-      audios.background.pause();
-    };
-  }, [audioEnabled]);
 
   useEffect(() => {
     if (!audioEnabled) {
       return;
     }
     let audioToPlay;
+    if (phase === "introductions") {
+      audioToPlay = audios.introductions;
+    }
 
     if (phase === "voting") {
       audioToPlay = audios.cards;
@@ -110,9 +103,12 @@ export const UI = () => {
   return (
     <div className="text-white drop-shadow-xl fixed top-0 left-0 right-0 bottom-0 z-10 flex flex-col pointer-events-none">
       <div className="p-4 w-full flex items-center justify-between">
-        <h2 className="text-2xl font-bold text-center uppercase">
+        <h2 className="text-l font-bold text-center uppercase">
           Mission {mission}/{NB_MISSIONS}
         </h2>
+        <h6 className="text-l font-bold text-center uppercase">
+          {me.getProfile().name}
+        </h6>
       </div>
 
       <div className="flex-1" />
@@ -133,7 +129,7 @@ export const UI = () => {
           </button>
         )}
       </div>
-      {isStreamScreen() && (
+      {
         <button
           className="fixed bottom-4 left-4 pointer-events-auto"
           onClick={toggleAudio}
@@ -170,7 +166,7 @@ export const UI = () => {
             </svg>
           )}
         </button>
-      )}
+      }
     </div>
   );
 };
