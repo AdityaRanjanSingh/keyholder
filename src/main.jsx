@@ -6,7 +6,7 @@ import { GameEngineProvider } from "./hooks/useGameEngine";
 import "./index.css";
 
 insertCoin({
-  gameId: process.env.GAME_ID,
+  gameId: "7yiutgkh5Gy5WehkR7JO",
   streamMode: true,
 }).then(() => {
   ReactDOM.createRoot(document.getElementById("root")).render(

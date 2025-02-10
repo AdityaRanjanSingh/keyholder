@@ -5,12 +5,12 @@ import { isHost, isStreamScreen } from "playroomkit";
 import { Experience } from "./components/Experience";
 import { UI } from "./components/UI";
 
-const DEBUG = false;
+const DEBUG = true;
 
 function App() {
   return (
     <>
-      <Leva hidden={!DEBUG || !isHost()} />
+      <Leva hidden={!DEBUG} />
       <Canvas
         shadows
         camera={{

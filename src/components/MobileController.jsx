@@ -17,13 +17,14 @@ import {
 import { degToRad } from "three/src/math/MathUtils";
 import { useGameEngine } from "../hooks/useGameEngine";
 import { Card } from "./Card";
-import { Character } from "./Character";
 import { PlayerName } from "./PlayerName";
 import { useState } from "react";
 
 import { useControls } from "leva";
 import { Bunny } from "./Bunny";
 import { Cactoro } from "./Cactoro";
+import { Character } from "./Character";
+import Cat from "./Cat";
 
 export const MobileController = () => {
   const me = myPlayer();
@@ -61,6 +62,16 @@ export const MobileController = () => {
       setState("nominations", newNominations, true);
     }
   };
+
+  const { positionX, positionY, positionZ, rotateX, rotateY, rotateZ } =
+    useControls({
+      positionX: 0,
+      positionY: 0,
+      positionZ: 0,
+      rotateX: 0,
+      rotateY: 0,
+      rotateZ: 0,
+    });
   const onBunnyPress = () => {
     setBunnyAnimation("Death");
     setTimeout(() => {
@@ -72,7 +83,7 @@ export const MobileController = () => {
     <group position-y={-1}>
       <ContactShadows opacity={0.12} />
       <group scale={scalingRatio}>
-        {isHost() && (
+        {/* {isHost() && (
           <>
             <group position-z={3.5} position-x={0} position-y={0}>
               <mesh onClick={() => onBunnyPress()} visible={false}>
@@ -82,13 +93,22 @@ export const MobileController = () => {
               <Bunny scale={0.2} animation={bunnyAnimation} />
             </group>
           </>
-        )}
-        <group position={[0, 0, -10]}>
+        )} */}
+        <group
+          position={[positionX, positionY, positionZ]}
+          rotation-x={degToRad(rotateX)}
+          rotation-y={degToRad(rotateY)}
+          rotation-z={degToRad(rotateZ)}
+        >
+          <Cat></Cat>
+        </group>
+
+        <group position={[-1, 0, 0]}>
           <Center disableY disableZ>
             {players.map((player, index) => (
               <motion.group
                 key={player.id}
-                position-x={playerIdx++ * 1.2}
+                position-y={playerIdx++ * 0.8}
                 position-z={-2}
                 animate={nominations.includes(index) ? "selected" : ""}
                 scale={0.4}
@@ -114,9 +134,9 @@ export const MobileController = () => {
                 />
                 <PlayerName
                   name={
-                    role === "spy" || phase === "end"
+                    role === "spy"
                       ? players[index].getState("role")
-                      : ""
+                      : "resistance"
                   }
                   fontSize={0.3}
                   position-y={3.5}
@@ -125,12 +145,13 @@ export const MobileController = () => {
                   character={index}
                   animation={nominations.includes(index) ? "Yes" : "Idle"}
                   name={player.state.profile.name}
+                  scale={0.5}
                 />
               </motion.group>
             ))}
           </Center>
         </group>
-        <group position-y={1}>
+        {/* <group position-y={1}>
           <PlayerName
             position-x={-1}
             position-y={-2.5}
@@ -256,7 +277,7 @@ export const MobileController = () => {
               </motion.group>
             );
           })}
-        </group>
+        </group> */}
       </group>
     </group>
   );

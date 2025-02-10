@@ -3102,6 +3102,7 @@ __metadata:
     react-dom: "npm:^18.2.0"
     tailwindcss: "npm:^3.4.1"
     three: "npm:0.153.0"
+    three-stdlib: "npm:^2.35.13"
     vite: "npm:^4.1.0"
   languageName: unknown
   linkType: soft
@@ -3668,6 +3669,22 @@ __metadata:
   peerDependencies:
     three: ">=0.128.0"
   checksum: 10c0/8ec598e7e98225ff7b1b02167f78c59b601a9ecebdd4915a7e77f4d52aa274a9c307ad50d1002db356efcdd3f940fe83c1d448c1a93deee5839eb79498828c68
+  languageName: node
+  linkType: hard
+
+"three-stdlib@npm:^2.35.13":
+  version: 2.35.13
+  resolution: "three-stdlib@npm:2.35.13"
+  dependencies:
+    "@types/draco3d": "npm:^1.4.0"
+    "@types/offscreencanvas": "npm:^2019.6.4"
+    "@types/webxr": "npm:^0.5.2"
+    draco3d: "npm:^1.4.1"
+    fflate: "npm:^0.6.9"
+    potpack: "npm:^1.0.1"
+  peerDependencies:
+    three: ">=0.128.0"
+  checksum: 10c0/fb65033a0a9fd90e723f93d3fe65c305c1794c21511bedd81883b737cbace42e91ef1c9ec70e5a388e267f3a39a6819ae04634932508cbf5b9cc929da4a762d1
   languageName: node
   linkType: hard
 

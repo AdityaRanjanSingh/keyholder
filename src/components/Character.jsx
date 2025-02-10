@@ -1,47 +1,37 @@
-import { useAnimations, useGLTF } from "@react-three/drei";
-import { useEffect, useMemo, useRef } from "react";
-
-const CHARACTERS = [
-  "Dino",
-  "Fish",
-  "Frog",
-  "Monkroose",
-  "MushroomKing",
-  "Ninja",
-  "Orc_Skull",
-  "Orc",
-  "Tribal",
-  "Yeti",
-];
+import Birb from "./Birb";
+import Cat from "./Cat";
+import Chicken from "./Chicken";
+import Dog from "./Dog";
+import Fish from "./Fish";
+import GreenBlob from "./GreenBlob";
+import Mushnub from "./Mushnub";
+import Ninja from "./Ninja";
+import Orc from "./Orc";
+import Yeti from "./Yeti";
 
 export const Character = ({ character = 0, animation = "Idle", ...props }) => {
-  const characterPath = useMemo(
-    () => `/models/${CHARACTERS[character]}.gltf`,
-    [character]
-  );
-  const { scene, animations } = useGLTF(characterPath);
-
-  const ref = useRef();
-  const { actions } = useAnimations(animations, ref);
-
-  useEffect(() => {
-    actions[animation].reset().fadeIn(0.5).play();
-    return () => actions[animation]?.fadeOut(0.5);
-  }, [animation]);
-  if (typeof character === undefined) return null;
-  return (
-    <group {...props} ref={ref}>
-      <primitive object={scene} />
-    </group>
-  );
+  switch (character) {
+    case 0:
+      return <Birb {...props} />;
+    case 1:
+      return <Cat {...props} />;
+    case 2:
+      return <Chicken {...props} />;
+    case 3:
+      return <Dog {...props} />;
+    case 4:
+      return <Fish {...props} />;
+    case 5:
+      return <GreenBlob />;
+    case 6:
+      return <Mushnub {...props} />;
+    case 7:
+      return <Ninja {...props} />;
+    case 8:
+      return <Orc {...props} />;
+    case 9:
+      return <Yeti {...props} />;
+    default:
+      return <GreenBlob {...props} />;
+  }
 };
-useGLTF.preload("/models/Dino.gltf");
-useGLTF.preload("/models/Fish.gltf");
-useGLTF.preload("/models/Frog.gltf");
-useGLTF.preload("/models/Monkroose.gltf");
-useGLTF.preload("/models/MushroomKing.gltf");
-useGLTF.preload("/models/Ninja.gltf");
-useGLTF.preload("/models/Orc_Skull.gltf");
-useGLTF.preload("/models/Orc.gltf");
-useGLTF.preload("/models/Tribal.gltf");
-useGLTF.preload("/models/Yeti.gltf");
