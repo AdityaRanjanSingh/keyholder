@@ -1,4 +1,3 @@
-import { useControls } from "leva";
 import {
   getState,
   isHost,
@@ -40,6 +39,15 @@ const getNumberOfSpies = (number) => {
       return 1;
   }
 };
+const getPlayerRoles = (players) => {
+  if (players === 4) return { traitor: 1, keyholder: 1, guard: 1, wizard: 1 };
+  if (players === 5) return { traitor: 1, keyholder: 1, guard: 1, wizard: 2 };
+  if (players === 6) return { traitor: 1, keyholder: 1, guard: 2, wizard: 2 };
+  if (players === 7) return { traitor: 1, keyholder: 1, guard: 3, wizard: 2 };
+  if (players === 8) return { traitor: 2, keyholder: 1, guard: 3, wizard: 2 };
+  if (players === 9) return { traitor: 2, keyholder: 1, guard: 3, wizard: 3 };
+  if (players === 10) return { traitor: 2, keyholder: 1, guard: 4, wizard: 3 };
+};
 export const GameEngineProvider = ({ children }) => {
   // GAME STATE
   const [timer, setTimer] = useMultiplayerState("timer", 0);
@@ -66,10 +74,12 @@ export const GameEngineProvider = ({ children }) => {
   const [nominations, setNominations] = useMultiplayerState("nominations", []);
   const [next, setNext] = useMultiplayerState("next", 0);
 
+  const [wizards, setWizards] = useMultiplayerState("wizards", []);
+
   const players = usePlayersList(true);
 
-  const NB_SPIES = useMemo(
-    () => getNumberOfSpies(players.length),
+  const playerRoles = useMemo(
+    () => getPlayerRoles(players.length),
     [players.length]
   );
   const [missionPlayers, setMissionPlayers] = useMultiplayerState(
@@ -89,30 +99,21 @@ export const GameEngineProvider = ({ children }) => {
     deck,
     nominations,
     missionSuccess,
-    next,
+    wizards,
   };
 
   const startGame = () => {
     if (isHost()) {
       console.log("Start game");
-      const randomPlayer = randInt(0, players.length - 1); // we choose a random player to start
-      setPlayerStart(randomPlayer, true);
-      setPlayerTurn(randomPlayer, true);
-      setMission(1, true);
-      const totalPlayers = players.length;
-      const NB_MISSON_PLAYERS = MISSION_PLAYERS[totalPlayers];
-      setMissionPlayers(NB_MISSON_PLAYERS, true);
-      const resistance = players.length - NB_SPIES;
       setRolesDeck(
         [
-          ...new Array(NB_SPIES).fill(0).map(() => "spy"),
-          ...new Array(resistance).fill(0).map(() => "resistance"),
+          ...new Array(playerRoles.guard).fill(0).map(() => "guard"),
+          ...new Array(playerRoles.wizard).fill(0).map(() => "wizard"),
+          ...new Array(playerRoles.keyholder).fill(0).map(() => "keyholder"),
+          ...new Array(playerRoles.traitor).fill(0).map(() => "traitor"),
         ],
         true
       );
-      setNominations([], true);
-      resetMissionVote();
-      resetNominationVote();
       distributeRoles();
       setPhase("introductions", true);
     }
@@ -121,12 +122,17 @@ export const GameEngineProvider = ({ children }) => {
   const distributeRoles = () => {
     const newDeck = [...getState("rolesDeck")];
     const shuffledArray = newDeck.sort((a, b) => 0.5 - Math.random());
-    players.forEach((player) => {
+    const newWizards = [];
+    players.forEach((player, index) => {
       const randomIndex = randInt(0, shuffledArray.length - 1);
       player.setState("role", shuffledArray[randomIndex], true);
+      if (shuffledArray[randomIndex] === "wizard") newWizards.push(index);
       shuffledArray.splice(randomIndex, 1);
     });
+    console.log({ newWizards });
+    setWizards(newWizards, true);
   };
+
   useEffect(() => {
     startGame();
     // onPlayerJoin(startGame); // we restart the game when a new player joins
@@ -269,9 +275,6 @@ export const GameEngineProvider = ({ children }) => {
     setTimer(newTime, true);
   };
 
-  const { paused } = useControls({
-    paused: false,
-  });
   const timerInterval = useRef();
 
   const resetNominationVote = () => {
@@ -295,7 +298,6 @@ export const GameEngineProvider = ({ children }) => {
     return;
     timerInterval.current = setInterval(() => {
       if (!isHost()) return;
-      if (paused) return;
       let newTime = getState("timer") - 1;
       console.log("Timer", newTime);
 
@@ -314,11 +316,6 @@ export const GameEngineProvider = ({ children }) => {
   const clearTimer = () => {
     clearInterval(timerInterval.current);
   };
-
-  useEffect(() => {
-    runTimer();
-    return clearTimer;
-  }, [phase, paused]);
 
   return (
     <GameEngineContext.Provider

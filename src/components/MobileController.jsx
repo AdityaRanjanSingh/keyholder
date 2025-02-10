@@ -20,7 +20,6 @@ import { Card } from "./Card";
 import { PlayerName } from "./PlayerName";
 import { useState } from "react";
 
-import { useControls } from "leva";
 import { Bunny } from "./Bunny";
 import { Cactoro } from "./Cactoro";
 import { Character } from "./Character";

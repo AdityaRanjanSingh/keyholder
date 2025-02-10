@@ -1,3 +1,5 @@
+import daisyui from "daisyui";
+
 /** @type {import('tailwindcss').Config} */
 export default {
   content: ["./index.html", "./src/**/*.{js,ts,jsx,tsx}"],
@@ -7,5 +9,5 @@ export default {
       sans: ["Rubik Mono One", "sans-serif"],
     },
   },
-  plugins: [],
+  plugins: [daisyui],
 };
