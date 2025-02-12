@@ -2,6 +2,7 @@ import { isHost, isStreamScreen, myPlayer } from "playroomkit";
 import { useEffect, useState } from "react";
 import { useGameEngine } from "../hooks/useGameEngine";
 import ResistanceCharacter from "./ResistanceCharacter";
+import Wizard from "./Wizard";
 
 const audios = {
   background: new Audio("/audios/Drunken Sailor - Cooper Cannell.mp3"),
@@ -29,7 +30,7 @@ const introductions = {
 };
 
 export default () => {
-  const { phase, players, wizards } = useGameEngine();
+  const { phase, players, wizards, timer } = useGameEngine();
   const [modalTitle, setModalTitle] = useState("Introduction");
   const [modalBody, setModalBody] = useState("");
   const [modalButton, setModalButton] = useState("Okay");
@@ -87,6 +88,9 @@ export default () => {
               </h2>
               <h2 className="text-sm text-start uppercase">{role}</h2>
             </div>
+            <div className="">
+              <h3>{timer}</h3>
+            </div>
             <div className="flex-none gap-1">
               <button
                 className="btn btn-circle btn-info"
@@ -99,18 +103,19 @@ export default () => {
             </div>
           </div>
           <div className="my-5 justify-center">
-            <h2 className="text-2xl text-center font-bold uppercase">Wizards</h2>
+            <h2 className="text-2xl text-center font-bold uppercase">
+              Wizards
+            </h2>
             <div className="flex justify-center">
               {wizards.map((index) => (
-                <ResistanceCharacter
-                  key={index}
-                  index={index}
-                ></ResistanceCharacter>
+                <Wizard key={index} index={index}></Wizard>
               ))}
             </div>
           </div>
           <div className="my-5 justify-center">
-            <h2 className="text-2xl text-center font-bold uppercase">Adventurers</h2>
+            <h2 className="text-2xl text-center font-bold uppercase">
+              Adventurers
+            </h2>
             <div className="flex justify-center flex-wrap flex-1">
               {players.map(
                 (player, index) =>

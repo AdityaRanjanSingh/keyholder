@@ -121,7 +121,8 @@ export const GameEngineProvider = ({ children }) => {
         true
       );
       distributeRoles();
-      setPhase("introductions", true);
+      setPhase("introduction", true);
+      setTimer(10000, true);
     }
   };
 
@@ -159,7 +160,7 @@ export const GameEngineProvider = ({ children }) => {
   const phaseEnd = () => {
     let newTime = 0;
     switch (getState("phase")) {
-      case "introductions":
+      case "introduction":
         setPhase("nominations", true);
         break;
       case "nominations": {
@@ -301,7 +302,6 @@ export const GameEngineProvider = ({ children }) => {
   };
 
   const runTimer = () => {
-    return;
     timerInterval.current = setInterval(() => {
       if (!isHost()) return;
       let newTime = getState("timer") - 1;
@@ -314,6 +314,11 @@ export const GameEngineProvider = ({ children }) => {
       }
     }, 1000);
   };
+
+  useEffect(() => {
+    runTimer();
+    return clearTimer;
+  }, [phase]);
 
   useEffect(() => {
     if (isHost() && next) phaseEnd();

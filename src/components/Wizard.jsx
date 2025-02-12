@@ -1,6 +1,8 @@
 import { useEffect, useMemo, useState } from "react";
 import { useGameEngine } from "../hooks/useGameEngine";
 import { myPlayer } from "playroomkit";
+import wizardPhoto from "../assets/photos/wizard.jpg";
+import wizardRed from "../assets/photos/wizard-red.jpg";
 
 export default ({ index = 0 }) => {
   const { players, phase } = useGameEngine();
@@ -11,8 +13,9 @@ export default ({ index = 0 }) => {
     role: "Guard",
   });
 
-  const photo = players[index].getProfile().photo;
   const name = players[index].getProfile().name;
+  const photo = players[index].getProfile().photo;
+
   const role = players[index].getState("role");
 
   const me = myPlayer();
@@ -24,9 +27,8 @@ export default ({ index = 0 }) => {
 
   useEffect(() => {
     setPlayer({ photo, name, role });
-  }, [photo === true, name, role]);
+  }, [photo !== false, name, role]);
 
-  console.log({ player });
   return (
     <div className="w-20 m-2">
       <figure>
