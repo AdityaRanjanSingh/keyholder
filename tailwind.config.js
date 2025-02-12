@@ -9,5 +9,8 @@ export default {
       sans: ["Rubik Mono One", "sans-serif"],
     },
   },
+  daisyui: {
+    themes: ["dim"],
+  },
   plugins: [daisyui],
 };

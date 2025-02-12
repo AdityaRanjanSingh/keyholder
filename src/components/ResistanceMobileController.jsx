@@ -1,6 +1,6 @@
 import { isHost, isStreamScreen, myPlayer } from "playroomkit";
 import { useEffect, useState } from "react";
-import { NB_MISSIONS, useGameEngine } from "../hooks/useGameEngine";
+import { useGameEngine } from "../hooks/useGameEngine";
 import ResistanceCharacter from "./ResistanceCharacter";
 
 const audios = {
@@ -18,10 +18,10 @@ const introductions = {
     "You are the Good Wizard! Your goal is to help the group complete their mission and identify the Traitor.",
   evilWizard:
     "You are the Evil Wizard! You secretly work against the group, but they don’t know it. Your goal is to find out which player is the Key Holder and stop them from succeeding.",
-  keyHolder:
+  keyholder:
     "You are the Key Holder! Your goal is to find the Good Wizard and secretly pass them the key. Be careful—if you give it to the wrong person, disaster may follow! Watch the players, look for signs of trust, and make your choice wisely.",
   guard:
-    "You are a Guard! Your goal is to protect the group by identifying the Bad Wizard. Pay close attention to everyone’s actions and words—someone is working against you. Work with the team, trust wisely, and uncover the traitor before it's too late!",
+    "You are a Guard! Your goal is to protect the group by identifying the Traitor. Pay close attention to everyone’s actions and words—someone is working against you. Work with the team, trust wisely, and uncover the traitor before it's too late!",
   wizard:
     "You are a Guard! Your goal is to protect the group by identifying the Bad Wizard. Pay close attention to everyone’s actions and words—someone is working against you. Work with the team, trust wisely, and uncover the traitor before it's too late!",
   traitor:
@@ -30,12 +30,16 @@ const introductions = {
 
 export default () => {
   const { phase, players, wizards } = useGameEngine();
+  const [modalTitle, setModalTitle] = useState("Introduction");
+  const [modalBody, setModalBody] = useState("");
+  const [modalButton, setModalButton] = useState("Okay");
 
   const me = myPlayer();
+  const role = me.getState("role");
 
-  const chats = me.getState("chats") || [];
-
-  console.log({ chats });
+  useEffect(() => {
+    setModalBody(introductions[role]);
+  }, [role]);
 
   // AUDIO MANAGER
   const [audioEnabled, setAudioEnabled] = useState(false);
@@ -61,31 +65,79 @@ export default () => {
     }
   }, [phase, audioEnabled]);
   return (
-    <div className="flex justify-center">
-      <div className="artboard phone-1">
-        <div className="my-10 justify-center">
-          <h2 className="text-2xl text-center font-bold">Wizards</h2>
-          <div className="flex justify-center my-5">
-            {wizards.map((index) => (
-              <ResistanceCharacter
-                key={index}
-                index={index}
-              ></ResistanceCharacter>
-            ))}
+    <>
+      <div className="flex justify-center">
+        <div className="artboard  w-full">
+          <div className="navbar bg-base-300 gap-2 align-middle">
+            <div className="flex-none gap-2">
+              <div className="dropdown dropdown-end">
+                <div className="btn-circle avatar">
+                  <div className="w-15 rounded-full">
+                    <img
+                      alt="Tailwind CSS Navbar component"
+                      src={me.getProfile().photo}
+                    />
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div className="flex-1 flex-col items-start">
+              <h2 className="text-lg text-start uppercase">
+                {me.getProfile().name}
+              </h2>
+              <h2 className="text-sm text-start uppercase">{role}</h2>
+            </div>
+            <div className="flex-none gap-1">
+              <button
+                className="btn btn-circle btn-info"
+                onClick={() =>
+                  document.getElementById("my_modal_5").showModal()
+                }
+              >
+                ?
+              </button>
+            </div>
           </div>
-        </div>
-        <div className="my-10 justify-center">
-          <h2 className="text-2xl text-center my-5 font-bold">Adventurers</h2>
-          <div className="flex justify-center flex-wrap flex-1">
-            {players.map((player, index) => (
-              <ResistanceCharacter
-                key={index}
-                index={index}
-              ></ResistanceCharacter>
-            ))}
+          <div className="my-5 justify-center">
+            <h2 className="text-2xl text-center font-bold uppercase">Wizards</h2>
+            <div className="flex justify-center">
+              {wizards.map((index) => (
+                <ResistanceCharacter
+                  key={index}
+                  index={index}
+                ></ResistanceCharacter>
+              ))}
+            </div>
+          </div>
+          <div className="my-5 justify-center">
+            <h2 className="text-2xl text-center font-bold uppercase">Adventurers</h2>
+            <div className="flex justify-center flex-wrap flex-1">
+              {players.map(
+                (player, index) =>
+                  !wizards.includes(index) && (
+                    <ResistanceCharacter key={index} index={index} />
+                  )
+              )}
+            </div>
           </div>
         </div>
       </div>
-    </div>
+      {/* Open the modal using document.getElementById('ID').showModal() method */}
+
+      <dialog id="my_modal_5" className="modal modal-bottom sm:modal-middle">
+        <div className="modal-box">
+          <h3 className="font-bold text-lg">{modalTitle}</h3>
+          <p className="py-4">{modalBody}</p>
+          <div className="modal-action">
+            <form method="dialog">
+              <button className="btn w-fit">{modalButton}</button>
+            </form>
+          </div>
+        </div>
+      </dialog>
+      <div className="absolute flex justify-center bottom-10 left-auto right-auto w-full">
+        <button className="btn btn-active btn-primary">Stop</button>
+      </div>
+    </>
   );
 };
