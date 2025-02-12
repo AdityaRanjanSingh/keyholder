@@ -12,14 +12,19 @@ const GameEngineContext = React.createContext();
 
 export const NB_MISSIONS = 5;
 
-const MISSION_PLAYERS = {
-  4: [1, 2, 2, 2, 2],
-  5: [2, 3, 2, 3, 3],
-  6: [2, 3, 4, 3, 4],
-  7: [2, 3, 3, 4, 4],
-  8: [3, 4, 4, 5, 5],
-  9: [3, 4, 4, 5, 5],
-  10: [3, 4, 4, 5, 5],
+const introductions = {
+  goodWizard:
+    "You are the Good Wizard! Your goal is to help the group complete their mission and identify the Traitor.",
+  evilWizard:
+    "You are the Evil Wizard! You secretly work against the group, but they don’t know it. Your goal is to find out which player is the Key Holder and stop them from succeeding.",
+  keyHolder:
+    "You are the Key Holder! Your goal is to find the Good Wizard and secretly pass them the key. Be careful—if you give it to the wrong person, disaster may follow! Watch the players, look for signs of trust, and make your choice wisely.",
+  guard:
+    "You are a Guard! Your goal is to protect the group by identifying the Bad Wizard. Pay close attention to everyone’s actions and words—someone is working against you. Work with the team, trust wisely, and uncover the traitor before it's too late!",
+  wizard:
+    "You are a Guard! Your goal is to protect the group by identifying the Bad Wizard. Pay close attention to everyone’s actions and words—someone is working against you. Work with the team, trust wisely, and uncover the traitor before it's too late!",
+  traitor:
+    "You are the Traitor! You secretly work with the Bad Wizard to find the Key Holder, but the group thinks you're on their side. Earn their trust, gather information, and subtly guide the Bad Wizard to their target. Be careful—if they suspect you, your plan could fall apart!",
 };
 const getNumberOfSpies = (number) => {
   switch (number) {
@@ -105,6 +110,7 @@ export const GameEngineProvider = ({ children }) => {
   const startGame = () => {
     if (isHost()) {
       console.log("Start game");
+      console.log({ playerRoles });
       setRolesDeck(
         [
           ...new Array(playerRoles.guard).fill(0).map(() => "guard"),
@@ -126,13 +132,13 @@ export const GameEngineProvider = ({ children }) => {
     players.forEach((player, index) => {
       const randomIndex = randInt(0, shuffledArray.length - 1);
       player.setState("role", shuffledArray[randomIndex], true);
+      player.setState("chats", [introductions[shuffledArray[randomIndex]]]);
       if (shuffledArray[randomIndex] === "wizard") newWizards.push(index);
       shuffledArray.splice(randomIndex, 1);
     });
     console.log({ newWizards });
     setWizards(newWizards, true);
   };
-
   useEffect(() => {
     startGame();
     // onPlayerJoin(startGame); // we restart the game when a new player joins

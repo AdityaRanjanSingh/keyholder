@@ -31,14 +31,12 @@ const introductions = {
 export default () => {
   const { phase, players, wizards } = useGameEngine();
 
-  const [chats, setChats] = useState([]);
-
   const me = myPlayer();
 
-  useEffect(() => {
-    const role = me.getState("role");
-    setChats((existing) => [...existing, introductions[role]]);
-  }, [wizards.length]);
+  const chats = me.getState("chats") || [];
+
+  console.log({ chats });
+
   // AUDIO MANAGER
   const [audioEnabled, setAudioEnabled] = useState(false);
   const toggleAudio = () => {
@@ -63,11 +61,11 @@ export default () => {
     }
   }, [phase, audioEnabled]);
   return (
-    <div className="flex justify-center py-5">
+    <div className="flex justify-center">
       <div className="artboard phone-1">
         <div className="my-10 justify-center">
-          <h2 className="text-2xl">Wizards</h2>
-          <div className="grid grid-cols-3 gap-2 my-5">
+          <h2 className="text-2xl text-center font-bold">Wizards</h2>
+          <div className="flex justify-center my-5">
             {wizards.map((index) => (
               <ResistanceCharacter
                 key={index}
@@ -77,8 +75,8 @@ export default () => {
           </div>
         </div>
         <div className="my-10 justify-center">
-          <h2 className="text-2xl">Adventurers</h2>
-          <div className="grid grid-cols-3 gap-2 my-5">
+          <h2 className="text-2xl text-center my-5 font-bold">Adventurers</h2>
+          <div className="flex justify-center flex-wrap flex-1">
             {players.map((player, index) => (
               <ResistanceCharacter
                 key={index}
@@ -87,15 +85,6 @@ export default () => {
             ))}
           </div>
         </div>
-      </div>
-      <div className="absolute bottom-10 mx-5">
-        {chats.map((chat) => (
-          <div className="chat chat-start">
-            <div className="chat-bubble">{chat}</div>
-          </div>
-        ))}
-        <ResistanceCharacter key={0} index={0}></ResistanceCharacter>
-        <button className="btn btn-primary w-full">Stop</button>
       </div>
     </div>
   );
