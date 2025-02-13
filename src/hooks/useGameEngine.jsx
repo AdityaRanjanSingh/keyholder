@@ -17,7 +17,7 @@ const introductions = {
     "You are the Good Wizard! Your goal is to help the group complete their mission and identify the Traitor.",
   evilWizard:
     "You are the Evil Wizard! You secretly work against the group, but they don’t know it. Your goal is to find out which player is the Key Holder and stop them from succeeding.",
-  keyHolder:
+  keyholder:
     "You are the Key Holder! Your goal is to find the Good Wizard and secretly pass them the key. Be careful—if you give it to the wrong person, disaster may follow! Watch the players, look for signs of trust, and make your choice wisely.",
   guard:
     "You are a Guard! Your goal is to protect the group by identifying the Bad Wizard. Pay close attention to everyone’s actions and words—someone is working against you. Work with the team, trust wisely, and uncover the traitor before it's too late!",
@@ -26,23 +26,12 @@ const introductions = {
   traitor:
     "You are the Traitor! You secretly work with the Bad Wizard to find the Key Holder, but the group thinks you're on their side. Earn their trust, gather information, and subtly guide the Bad Wizard to their target. Be careful—if they suspect you, your plan could fall apart!",
 };
-const getNumberOfSpies = (number) => {
-  switch (number) {
-    case 3:
-    case 4:
-      return 1;
-    case 5:
-    case 6:
-      return 2;
-    case 7:
-    case 8:
-      return 3;
-    case 9:
-    case 10:
-      return 4;
-    default:
-      return 1;
-  }
+
+const roleChoiceMap = {
+  goodWizard: "traitor",
+  keyholder: "goodWizard",
+  guard: "traitor",
+  evilWizard: "keyholder",
 };
 const getPlayerRoles = (players) => {
   if (players === 4) return { traitor: 1, keyholder: 1, guard: 1, wizard: 1 };
@@ -61,20 +50,16 @@ export const GameEngineProvider = ({ children }) => {
     "missionSuccess",
     0
   );
-  const [missionFailure, setMissionFailure] = useMultiplayerState(
-    "missionFailure",
-    0
-  );
-  const [nominationFailure, setNominationFailure] = useMultiplayerState(
-    "nominationFailure",
-    0
-  );
 
   const [phase, setPhase] = useMultiplayerState("phase", "lobby");
   const [playerTurn, setPlayerTurn] = useMultiplayerState("playerTurn", 0);
   const [playerStart, setPlayerStart] = useMultiplayerState("playerStart", 0);
   const [deck, setDeck] = useMultiplayerState("deck", []);
   const [rolesDeck, setRolesDeck] = useMultiplayerState("rolesDeck", []);
+  const [stoppedPlayer, setStoppedPlayer] = useMultiplayerState(
+    "stoppedPlayer",
+    100
+  );
 
   const [nominations, setNominations] = useMultiplayerState("nominations", []);
   const [next, setNext] = useMultiplayerState("next", 0);
@@ -122,7 +107,7 @@ export const GameEngineProvider = ({ children }) => {
       );
       distributeRoles();
       setPhase("introduction", true);
-      setTimer(10000, true);
+      setTimer(30, true);
     }
   };
 
@@ -160,122 +145,27 @@ export const GameEngineProvider = ({ children }) => {
   const phaseEnd = () => {
     let newTime = 0;
     switch (getState("phase")) {
-      case "introduction":
-        setPhase("nominations", true);
+      case "choosePlayer":
+        setPhase("result", true);
         break;
-      case "nominations": {
-        const newNominations = nominations;
-        const missingNominations =
-          missionPlayers[mission - 1] - newNominations.length;
-        if (missingNominations && missingNominations !== 0) {
-          new Array(missingNominations).fill(0).forEach(() => {
-            const random = randInt(0, players.length - 1);
-            const addRandomToNomination = (random) => {
-              if (newNominations.includes(random)) {
-                const newrandom = randInt(0, players.length - 1);
-                addRandomToNomination(newrandom);
-              } else {
-                newNominations.push(random);
-              }
-            };
-            addRandomToNomination(random);
-          });
-          setNominations(newNominations, true);
-        }
-        setPhase("voteNomination", true);
-
+      case "result":
+        setPhase("chooseCard", true);
         break;
-      }
-      case "voteNomination": {
-        players.forEach((player) => {
-          const playerSelectedCard = player.getState("selectedNominationCard");
-          if (![0, 1].includes(playerSelectedCard)) {
-            player.setState("selectedNominationCard", randInt(0, 1), true);
-          }
-        });
-        setPhase("voteResult", true);
+      case "chooseCard":
+        setPhase("revealCard", true);
         break;
-      }
-      case "voteResult": {
-        let approveVote = players.filter(
-          (player) => player.getState("selectedNominationCard") === 1
-        ).length;
-        if (approveVote >= players.length / 2) {
-          setNominationFailure(0, true);
-          setPhase("nominationSuccess", true);
-        } else {
-          setNominationFailure(nominationFailure + 1, true);
-
-          setPhase("nominationFailure", true);
-        }
+      case "revealCard":
+        setPhase("action", true);
         break;
-      }
-      case "nominationSuccess":
-        setPhase("voteMission", true);
-        resetNominationVote();
+      case "action":
+        setPhase("choosePlayerCard", true);
         break;
-      case "nominationFailure":
-        if (getState("nominationFailure") === 5) {
-          setNominations([], true);
-          setPhase("end", true);
-        } else {
-          setNextPlayerTurn();
-          resetMissionVote();
-          setNominations([], true);
-          resetNominationVote();
-          setPhase("nominations", true);
-        }
+      case "choosePlayerCard":
+        setPhase("checkPoints", true);
         break;
-      case "voteMission": {
-        nominations.forEach((index) => {
-          const player = players[index];
-          const selectedCard = player.getState("selectedMissionCard");
-          if (![0, 1].includes(selectedCard)) {
-            player.setState("selectedMissionCard", randInt(0, 1), true);
-          }
-        });
-        setPhase("missionResult", true);
+      case "checkPoints":
+        setPhase("end", true);
         break;
-      }
-      case "missionResult": {
-        let failureMission = nominations.some(
-          (index) => players[index].getState("selectedMissionCard") === 0
-        );
-        if (failureMission) {
-          setPhase("missionFailure");
-          setMissionFailure(missionFailure + 1, true);
-        } else {
-          setPhase("missionSuccess");
-          setMissionSuccess(missionSuccess + 1, true);
-        }
-        break;
-      }
-      case "missionSuccess":
-        resetMissionVote();
-        if (missionSuccess === 3) {
-          setPhase("end", true);
-        } else if (mission === 5) {
-          setPhase("end", true);
-        } else {
-          setNominations([], true);
-          setNextPlayerTurn();
-          setPhase("nominations", true);
-          setMission(mission + 1);
-        }
-        break;
-      case "missionFailure":
-        resetMissionVote();
-        if (missionFailure === 3) {
-          console.log("End of game");
-          setPhase("end", true);
-        } else if (mission === 5) {
-          setPhase("end", true);
-        } else {
-          setNominations([], true);
-          setNextPlayerTurn();
-          setPhase("nominations", true);
-          setMission(mission + 1);
-        }
       default:
         break;
     }
@@ -284,18 +174,37 @@ export const GameEngineProvider = ({ children }) => {
 
   const timerInterval = useRef();
 
-  const resetNominationVote = () => {
-    players.forEach((players) => {
-      players.setState("selectedNominationCard", 10, true);
-    });
+  const setModalContent = () => {
+    switch (phase) {
+      case "introduction":
+        {
+          players.forEach((player) => {
+            const role = player.getState("role");
+            const modalTitle = phase;
+            const modalBody = introductions[role];
+            player.setState("modalTitle", modalTitle);
+            player.setState("modalBody", modalBody);
+          });
+        }
+        break;
+      case "choosePlayer": {
+        players.forEach((player, index) => {
+          const modalTitle =
+            stoppedPlayer === index
+              ? "You is choosing a player"
+              : `${
+                  players[stoppedPlayer].getProfile().name
+                } is choosing a player`;
+          const modalBody = "";
+          player.setState("modalTitle", modalTitle);
+          player.setState("modalBody", modalBody);
+        });
+      }
+    }
   };
-
-  const resetMissionVote = () => {
-    players.forEach((players) => {
-      players.setState("selectedMissionCard", 10, true);
-    });
-  };
-
+  useEffect(() => {
+    setModalContent();
+  }, [phase]);
   const setNextPlayerTurn = () => {
     const newPlayerTurn = (getState("playerTurn") + 1) % players.length;
     setPlayerTurn(newPlayerTurn, true);

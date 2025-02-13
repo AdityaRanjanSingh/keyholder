@@ -39,7 +39,6 @@ export default ({ index = 0 }) => {
     setPlayer({ photo, name, role });
   }, [name, role]);
 
-  console.log({ player });
   return (
     <div className="w-20 m-2">
       <figure>

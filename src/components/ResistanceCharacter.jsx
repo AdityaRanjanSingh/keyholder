@@ -26,9 +26,13 @@ export default ({ index = 0 }) => {
     setPlayer({ photo, name, role });
   }, [photo === true, name, role]);
 
-  console.log({ player });
   return (
-    <div className="w-20 m-2">
+    <div
+      className="w-20 m-2"
+      onClick={() => {
+        me.setState("selectedPlayer", index, true);
+      }}
+    >
       <figure>
         <img src={player.photo} alt="Photo" className="rounded-xl" />
       </figure>

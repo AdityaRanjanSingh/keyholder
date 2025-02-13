@@ -1,8 +1,10 @@
-import { isHost, isStreamScreen, myPlayer } from "playroomkit";
+import { isHost, isStreamScreen, myPlayer, setState } from "playroomkit";
 import { useEffect, useState } from "react";
 import { useGameEngine } from "../hooks/useGameEngine";
 import ResistanceCharacter from "./ResistanceCharacter";
 import Wizard from "./Wizard";
+import { toast } from "react-toastify";
+import Confetti from "react-confetti";
 
 const audios = {
   background: new Audio("/audios/Drunken Sailor - Cooper Cannell.mp3"),
@@ -31,21 +33,51 @@ const introductions = {
 
 export default () => {
   const { phase, players, wizards, timer } = useGameEngine();
-  const [modalTitle, setModalTitle] = useState("Introduction");
-  const [modalBody, setModalBody] = useState("");
   const [modalButton, setModalButton] = useState("Okay");
+  const [stopVisible, setStopVisible] = useState(true);
+
+  const [confettiVisible, setConfettiVisible] = useState(false);
 
   const me = myPlayer();
   const role = me.getState("role");
+  const modalTitle = me.getState("modalTitle");
+  const modalBody = me.getState("modalBody");
+
+  console.log({ modalTitle, modalBody });
+
+  const myIndex = players.findIndex((player) => player.id === me.id);
 
   useEffect(() => {
-    setModalBody(introductions[role]);
-  }, [role]);
+    setConfettiVisible(phase === "end");
+    document.getElementById("my_modal_5").showModal();
+    setTimeout(() => {
+      setConfettiVisible(false);
+    }, 10000);
+  }, [phase]);
+
+  useEffect(() => {
+    if (role !== "traitor" && phase === "introduction") {
+      setStopVisible(true);
+    } else {
+      setStopVisible(false);
+    }
+  }, [role, phase]);
 
   // AUDIO MANAGER
   const [audioEnabled, setAudioEnabled] = useState(false);
   const toggleAudio = () => {
     setAudioEnabled((prev) => !prev);
+  };
+
+  const onStopClick = () => {
+    toast("You pressed toast", {
+      type: "info",
+      autoClose: 20000,
+      position: "bottom-right",
+    });
+    setState("stoppedPlayer", myIndex, true);
+    setState("phase", "choosePlayer", true);
+    setState("timer", 30, true);
   };
 
   useEffect(() => {
@@ -67,6 +99,13 @@ export default () => {
   }, [phase, audioEnabled]);
   return (
     <>
+      <Confetti
+        gravity={0.1}
+        numberOfPieces={200}
+        opacity={1}
+        wind={0}
+        run={confettiVisible}
+      />
       <div className="flex justify-center">
         <div className="artboard  w-full">
           <div className="navbar bg-base-300 gap-2 align-middle">
@@ -91,18 +130,8 @@ export default () => {
             <div className="">
               <h3>{timer}</h3>
             </div>
-            <div className="flex-none gap-1">
-              <button
-                className="btn btn-circle btn-info"
-                onClick={() =>
-                  document.getElementById("my_modal_5").showModal()
-                }
-              >
-                ?
-              </button>
-            </div>
           </div>
-          <div className="my-5 justify-center">
+          <div className="card bg-base-300 shadow-xl p-5 justify-center m-5">
             <h2 className="text-2xl text-center font-bold uppercase">
               Wizards
             </h2>
@@ -112,11 +141,11 @@ export default () => {
               ))}
             </div>
           </div>
-          <div className="my-5 justify-center">
+          <div className="p-5 justify-center card bg-base-300 shadow-xl m-5">
             <h2 className="text-2xl text-center font-bold uppercase">
               Adventurers
             </h2>
-            <div className="flex justify-center flex-wrap flex-1">
+            <div className="flex flex-row justify-center flex-wrap flex-1 ">
               {players.map(
                 (player, index) =>
                   !wizards.includes(index) && (
@@ -141,7 +170,19 @@ export default () => {
         </div>
       </dialog>
       <div className="absolute flex justify-center bottom-10 left-auto right-auto w-full">
-        <button className="btn btn-active btn-primary">Stop</button>
+        {stopVisible && (
+          <button className="btn btn-active btn-primary" onClick={onStopClick}>
+            Stop
+          </button>
+        )}
+      </div>
+      <div className="absolute flex bottom-10 right-10">
+        <button
+          className="btn btn-circle btn-info"
+          onClick={() => document.getElementById("my_modal_5").showModal()}
+        >
+          ?
+        </button>
       </div>
     </>
   );
