@@ -70,14 +70,14 @@ export default () => {
   };
 
   const onStopClick = () => {
-    toast("You pressed toast", {
-      type: "info",
-      autoClose: 20000,
-      position: "bottom-right",
-    });
     setState("stoppedPlayer", myIndex, true);
     setState("phase", "choosePlayer", true);
-    setState("timer", 30, true);
+    setState("timer", 10, true);
+  };
+
+  const onPlayerSelect = (index) => {
+    me.setState("selectedPlayer", index, true);
+    setState("phase", "");
   };
 
   useEffect(() => {
@@ -137,7 +137,9 @@ export default () => {
             </h2>
             <div className="flex justify-center">
               {wizards.map((index) => (
-                <Wizard key={index} index={index}></Wizard>
+                <button onClick={() => onPlayerSelect(index)}>
+                  <Wizard key={index} index={index}></Wizard>
+                </button>
               ))}
             </div>
           </div>
@@ -145,11 +147,13 @@ export default () => {
             <h2 className="text-2xl text-center font-bold uppercase">
               Adventurers
             </h2>
-            <div className="flex flex-row justify-center flex-wrap flex-1 ">
+            <div className="flex flex-row justify-center flex-wrap flex-1">
               {players.map(
                 (player, index) =>
                   !wizards.includes(index) && (
-                    <ResistanceCharacter key={index} index={index} />
+                    <button className="justify-start" onClick={() => onPlayerSelect(index)}>
+                      <ResistanceCharacter key={index} index={index} />
+                    </button>
                   )
               )}
             </div>

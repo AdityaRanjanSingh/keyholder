@@ -21,8 +21,6 @@ const introductions = {
     "You are the Key Holder! Your goal is to find the Good Wizard and secretly pass them the key. Be careful—if you give it to the wrong person, disaster may follow! Watch the players, look for signs of trust, and make your choice wisely.",
   guard:
     "You are a Guard! Your goal is to protect the group by identifying the Bad Wizard. Pay close attention to everyone’s actions and words—someone is working against you. Work with the team, trust wisely, and uncover the traitor before it's too late!",
-  wizard:
-    "You are a Guard! Your goal is to protect the group by identifying the Bad Wizard. Pay close attention to everyone’s actions and words—someone is working against you. Work with the team, trust wisely, and uncover the traitor before it's too late!",
   traitor:
     "You are the Traitor! You secretly work with the Bad Wizard to find the Key Holder, but the group thinks you're on their side. Earn their trust, gather information, and subtly guide the Bad Wizard to their target. Be careful—if they suspect you, your plan could fall apart!",
 };
@@ -34,28 +32,178 @@ const roleChoiceMap = {
   evilWizard: "keyholder",
 };
 const getPlayerRoles = (players) => {
-  if (players === 4) return { traitor: 1, keyholder: 1, guard: 1, wizard: 1 };
-  if (players === 5) return { traitor: 1, keyholder: 1, guard: 1, wizard: 2 };
-  if (players === 6) return { traitor: 1, keyholder: 1, guard: 2, wizard: 2 };
-  if (players === 7) return { traitor: 1, keyholder: 1, guard: 3, wizard: 2 };
-  if (players === 8) return { traitor: 2, keyholder: 1, guard: 3, wizard: 2 };
-  if (players === 9) return { traitor: 2, keyholder: 1, guard: 3, wizard: 3 };
-  if (players === 10) return { traitor: 2, keyholder: 1, guard: 4, wizard: 3 };
+  if (players === 4) {
+    const alignments = [
+      ...new Array(1).fill(0).map(() => "goodWizard"),
+      ...new Array(1).fill(0).map(() => "badWizard"),
+    ];
+    const shuffledArray = alignments.sort((a, b) => 0.5 - Math.random());
+    const wizards = Array(1)
+      .fill(0)
+      .map(() => {
+        const randomIndex = randInt(0, shuffledArray.length - 1);
+        const role = shuffledArray[randomIndex];
+        shuffledArray.splice(randomIndex, 1);
+        return role;
+      });
+    return {
+      traitor: 1,
+      keyholder: 1,
+      guard: 1,
+      goodWizard: wizards.filter((role) => role === "goodWizard").length,
+      badWizard: wizards.filter((role) => role === "badWizard").length,
+    };
+  }
+  if (players === 5) {
+    const alignments = [
+      ...new Array(1).fill(0).map(() => "goodWizard"),
+      ...new Array(1).fill(0).map(() => "badWizard"),
+    ];
+    const shuffledArray = alignments.sort((a, b) => 0.5 - Math.random());
+    const wizards = Array(2)
+      .fill(0)
+      .map(() => {
+        const randomIndex = randInt(0, shuffledArray.length - 1);
+        const role = shuffledArray[randomIndex];
+        shuffledArray.splice(randomIndex, 1);
+        return role;
+      });
+    return {
+      traitor: 1,
+      keyholder: 1,
+      guard: 1,
+      goodWizard: wizards.filter((role) => role === "goodWizard").length,
+      badWizard: wizards.filter((role) => role === "badWizard").length,
+    };
+  }
+  if (players === 6) {
+    const alignments = [
+      ...new Array(1).fill(0).map(() => "goodWizard"),
+      ...new Array(1).fill(0).map(() => "badWizard"),
+    ];
+    const shuffledArray = alignments.sort((a, b) => 0.5 - Math.random());
+    const wizards = Array(2)
+      .fill(0)
+      .map(() => {
+        const randomIndex = randInt(0, shuffledArray.length - 1);
+        const role = shuffledArray[randomIndex];
+        shuffledArray.splice(randomIndex, 1);
+        return role;
+      });
+    return {
+      traitor: 1,
+      keyholder: 1,
+      guard: 2,
+      goodWizard: wizards.filter((role) => role === "goodWizard").length,
+      badWizard: wizards.filter((role) => role === "badWizard").length,
+    };
+  }
+  if (players === 7) {
+    const alignments = [
+      ...new Array(1).fill(0).map(() => "goodWizard"),
+      ...new Array(1).fill(0).map(() => "badWizard"),
+    ];
+    const shuffledArray = alignments.sort((a, b) => 0.5 - Math.random());
+    const wizards = Array(2)
+      .fill(0)
+      .map(() => {
+        const randomIndex = randInt(0, shuffledArray.length - 1);
+        const role = shuffledArray[randomIndex];
+        shuffledArray.splice(randomIndex, 1);
+        return role;
+      });
+    return {
+      traitor: 1,
+      keyholder: 1,
+      guard: 3,
+      goodWizard: wizards.filter((role) => role === "goodWizard").length,
+      badWizard: wizards.filter((role) => role === "badWizard").length,
+    };
+  }
+  if (players === 8) {
+    const alignments = [
+      ...new Array(1).fill(0).map(() => "goodWizard"),
+      ...new Array(1).fill(0).map(() => "badWizard"),
+    ];
+    const shuffledArray = alignments.sort((a, b) => 0.5 - Math.random());
+    const wizards = Array(2)
+      .fill(0)
+      .map(() => {
+        const randomIndex = randInt(0, shuffledArray.length - 1);
+        const role = shuffledArray[randomIndex];
+        shuffledArray.splice(randomIndex, 1);
+        return role;
+      });
+    return {
+      traitor: 2,
+      keyholder: 1,
+      guard: 3,
+      goodWizard: wizards.filter((role) => role === "goodWizard").length,
+      badWizard: wizards.filter((role) => role === "badWizard").length,
+    };
+  }
+  if (players === 9) {
+    const alignments = [
+      ...new Array(2).fill(0).map(() => "goodWizard"),
+      ...new Array(2).fill(0).map(() => "badWizard"),
+    ];
+    const shuffledArray = alignments.sort((a, b) => 0.5 - Math.random());
+    const wizards = Array(2)
+      .fill(0)
+      .map(() => {
+        const randomIndex = randInt(0, shuffledArray.length - 1);
+        const role = shuffledArray[randomIndex];
+        shuffledArray.splice(randomIndex, 1);
+        return role;
+      });
+    return {
+      traitor: 2,
+      keyholder: 1,
+      guard: 3,
+      goodWizard: wizards.filter((role) => role === "goodWizard").length,
+      badWizard: wizards.filter((role) => role === "badWizard").length,
+    };
+  }
+  if (players === 10) {
+    const alignments = [
+      ...new Array(2).fill(0).map(() => "goodWizard"),
+      ...new Array(2).fill(0).map(() => "badWizard"),
+    ];
+    const shuffledArray = alignments.sort((a, b) => 0.5 - Math.random());
+    const wizards = Array(2)
+      .fill(0)
+      .map(() => {
+        const randomIndex = randInt(0, shuffledArray.length - 1);
+        const role = shuffledArray[randomIndex];
+        shuffledArray.splice(randomIndex, 1);
+        return role;
+      });
+    return {
+      traitor: 2,
+      keyholder: 1,
+      guard: 4,
+      goodWizard: wizards.filter((role) => role === "goodWizard").length,
+      badWizard: wizards.filter((role) => role === "badWizard").length,
+    };
+  }
 };
 export const GameEngineProvider = ({ children }) => {
   // GAME STATE
   const [timer, setTimer] = useMultiplayerState("timer", 0);
   const [mission, setMission] = useMultiplayerState("mission", 1);
-  const [missionSuccess, setMissionSuccess] = useMultiplayerState(
-    "missionSuccess",
-    0
-  );
+  const [goodTeam, setGoodTeam] = useMultiplayerState("goodTeam", []);
+  const [badTeam, setBadTeam] = useMultiplayerState("badTeam", []);
 
   const [phase, setPhase] = useMultiplayerState("phase", "lobby");
   const [playerTurn, setPlayerTurn] = useMultiplayerState("playerTurn", 0);
   const [playerStart, setPlayerStart] = useMultiplayerState("playerStart", 0);
   const [deck, setDeck] = useMultiplayerState("deck", []);
   const [rolesDeck, setRolesDeck] = useMultiplayerState("rolesDeck", []);
+  const [treasureDeck, setTreasureDeck] = useMultiplayerState(
+    "treasureDeck",
+    []
+  );
+
   const [stoppedPlayer, setStoppedPlayer] = useMultiplayerState(
     "stoppedPlayer",
     100
@@ -88,23 +236,33 @@ export const GameEngineProvider = ({ children }) => {
     players,
     deck,
     nominations,
-    missionSuccess,
     wizards,
   };
 
   const startGame = () => {
     if (isHost()) {
       console.log("Start game");
-      console.log({ playerRoles });
       setRolesDeck(
         [
           ...new Array(playerRoles.guard).fill(0).map(() => "guard"),
-          ...new Array(playerRoles.wizard).fill(0).map(() => "wizard"),
+          ...new Array(playerRoles.goodWizard).fill(0).map(() => "goodWizard"),
+          ...new Array(playerRoles.badWizard).fill(0).map(() => "badWizard"),
           ...new Array(playerRoles.keyholder).fill(0).map(() => "keyholder"),
           ...new Array(playerRoles.traitor).fill(0).map(() => "traitor"),
         ],
         true
       );
+      const shuffledArray = [
+        ...new Array(2).fill(0).map(() => "crownJewels"),
+        ...new Array(5).fill(0).map(() => "platinumPyramids"),
+        ...new Array(12).fill(0).map(() => "bagsOfGold"),
+        ...new Array(11).fill(0).map(() => "silverGoblets"),
+        ...new Array(11).fill(0).map(() => "silverGoblets"),
+        ...new Array(5).fill(0).map(() => "chestOfCopper"),
+        ...new Array(2).fill(0).map(() => "gildedStatue"),
+      ].sort((a, b) => 0.5 - Math.random());
+
+      setTreasureDeck(shuffledArray, true);
       distributeRoles();
       setPhase("introduction", true);
       setTimer(30, true);
@@ -115,15 +273,37 @@ export const GameEngineProvider = ({ children }) => {
     const newDeck = [...getState("rolesDeck")];
     const shuffledArray = newDeck.sort((a, b) => 0.5 - Math.random());
     const newWizards = [];
+    const newGoodTeam = [];
+    const newBadTeam = [];
     players.forEach((player, index) => {
       const randomIndex = randInt(0, shuffledArray.length - 1);
-      player.setState("role", shuffledArray[randomIndex], true);
-      player.setState("chats", [introductions[shuffledArray[randomIndex]]]);
-      if (shuffledArray[randomIndex] === "wizard") newWizards.push(index);
+      const role = shuffledArray[randomIndex];
+      player.setState("role", role, true);
+      if (/wizard/gi.test(role)) newWizards.push(index);
+      // if (["goodWizard", "guard", "keyholder"].includes(role)) {
+      //   newGoodTeam.push(index);
+      // } else {
+      //   newBadTeam.push(index);
+      // }
       shuffledArray.splice(randomIndex, 1);
     });
-    console.log({ newWizards });
     setWizards(newWizards, true);
+    setGoodTeam(newGoodTeam, true);
+    setBadTeam(newBadTeam, true);
+  };
+  const distributeTreasureCards = (winPlayers) => {
+    const newDeck = [...getState("treasureDeck")];
+    winPlayers.forEach((index) => {
+      const randomIndex = randInt(0, newDeck.length - 1);
+      const pTreasureCards = players[index].getState("treasureCards") || [];
+      players[index].setState(
+        "treasureCards",
+        [...pTreasureCards, newDeck[randomIndex]],
+        true
+      );
+      newDeck.splice(randomIndex, 1);
+    });
+    setTreasureDeck(newDeck, true);
   };
   useEffect(() => {
     startGame();
@@ -149,12 +329,6 @@ export const GameEngineProvider = ({ children }) => {
         setPhase("result", true);
         break;
       case "result":
-        setPhase("chooseCard", true);
-        break;
-      case "chooseCard":
-        setPhase("revealCard", true);
-        break;
-      case "revealCard":
         setPhase("action", true);
         break;
       case "action":
@@ -187,19 +361,39 @@ export const GameEngineProvider = ({ children }) => {
           });
         }
         break;
-      case "choosePlayer": {
-        players.forEach((player, index) => {
-          const modalTitle =
-            stoppedPlayer === index
-              ? "You is choosing a player"
-              : `${
-                  players[stoppedPlayer].getProfile().name
-                } is choosing a player`;
-          const modalBody = "";
-          player.setState("modalTitle", modalTitle);
-          player.setState("modalBody", modalBody);
-        });
-      }
+      case "choosePlayer":
+        {
+          players.forEach((player, index) => {
+            const modalTitle =
+              stoppedPlayer === index
+                ? "You is choosing a player"
+                : `${
+                    players[stoppedPlayer].getProfile().name
+                  } is choosing a player`;
+            const modalBody = "";
+            player.setState("modalTitle", modalTitle);
+            player.setState("modalBody", modalBody);
+          });
+        }
+        break;
+      case "result":
+        {
+          // const stoppedPlayerRole = players[stoppedPlayer].getState("role");
+          // const selectedPlayer =
+          //   players[stoppedPlayer].getState("selectedPlayer");
+          // const selectedPlayerRole = players[selectedPlayer].getState("role");
+          // if (selectedPlayerRole === roleChoiceMap[stoppedPlayerRole]) {
+          // }
+          // players.forEach((player, index) => {
+          //   const modalTitle = "";
+          //   const modalBody = "";
+          //   player.setState("modalTitle", modalTitle);
+          //   player.setState("modalBody", modalBody);
+          // });
+        }
+        break;
+      default:
+        break;
     }
   };
   useEffect(() => {
