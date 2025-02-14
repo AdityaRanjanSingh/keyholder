@@ -5,6 +5,8 @@ import Character from "./Character";
 import Wizard from "./Wizard";
 import Confetti from "react-confetti";
 import Treasure from "./Treasure";
+import Treasures from "./Treasures";
+import { toast } from "react-toastify";
 
 const audios = {
   background: new Audio("/audios/Drunken Sailor - Cooper Cannell.mp3"),
@@ -17,10 +19,12 @@ const audios = {
 };
 
 export default () => {
-  const { phase, players, wizards, timer } = useGameEngine();
+  const { phase, players, wizards, timer, round } = useGameEngine();
   const [modalButton, setModalButton] = useState("Okay");
   const [stopVisible, setStopVisible] = useState(true);
+
   const [actionVisible, setActionVisible] = useState(false);
+  const [newRoundVisible, setNewRoundVisible] = useState(false);
 
   const [confettiVisible, setConfettiVisible] = useState(false);
 
@@ -35,17 +39,23 @@ export default () => {
 
   useEffect(() => {
     setConfettiVisible(phase === "end");
-    document.getElementById("my_modal_5").showModal();
     setTimeout(() => {
       setConfettiVisible(false);
     }, 10000);
   }, [phase]);
 
   useEffect(() => {
+    document.getElementById("my_modal_5").showModal();
+  }, [modalTitle, modalBody, modalButton]);
+
+  useEffect(() => {
     const isStopVisible = role !== "traitor" && phase === "introduction";
-    const isActionVisible = phase === "action";
+    const isActionVisible =
+      phase === "result" && treasureCards.some((type) => type === "magicRing");
+    const isNewRoundVisible = isHost();
     setStopVisible(isStopVisible);
     setActionVisible(isActionVisible);
+    setNewRoundVisible(isNewRoundVisible);
   }, [role, phase]);
 
   // AUDIO MANAGER
@@ -57,12 +67,22 @@ export default () => {
   const onStopClick = () => {
     setState("stoppedPlayer", myIndex, true);
     setState("phase", "choosePlayer", true);
+   
     setState("timer", 10, true);
+  };
+
+  const onNewRound = () => {
+    setState("round", round + 1, true);
   };
 
   const onPlayerSelect = (index) => {
     me.setState("selectedPlayer", index, true);
     setState("phase", "result");
+  };
+
+  const onActionClicked = () => {
+    setState("setActionPlayer", myIndex);
+    setState("phase", "actionPlayer");
   };
 
   useEffect(() => {
@@ -122,8 +142,8 @@ export default () => {
             </h2>
             <div className="flex justify-center">
               {wizards.map((index) => (
-                <button onClick={() => onPlayerSelect(index)}>
-                  <Wizard key={index} index={index}></Wizard>
+                <button key={index} onClick={() => onPlayerSelect(index)}>
+                  <Wizard index={index}></Wizard>
                 </button>
               ))}
             </div>
@@ -137,10 +157,11 @@ export default () => {
                 (player, index) =>
                   !wizards.includes(index) && (
                     <button
+                      key={index}
                       className="justify-start"
                       onClick={() => onPlayerSelect(index)}
                     >
-                      <Character key={index} index={index} />
+                      <Character index={index} />
                     </button>
                   )
               )}
@@ -160,27 +181,21 @@ export default () => {
           </div>
         </div>
       </dialog>
-      <div className="m-5">
-        <div className="flex flex-row items-center gap-2">
-          <h2 className="text-xl font-semibold">Treasure</h2>
-          <div className="badge badge-accent">5</div>
-        </div>
-        {treasureCards.map(() => (
-          <Treasure></Treasure>
-        ))}
-      </div>
-      <div className="absolute flex flex-col-reverse bottom-10 right-10 gap-2">
+      <Treasures />
+      <div className="absolute flex flex-col-reverse bottom-5 right-5 gap-2">
         {stopVisible && (
           <button className="btn btn-circle btn-primary" onClick={onStopClick}>
             Stop
           </button>
         )}
         {actionVisible && (
-          <button
-            className="btn btn-circle btn-info"
-            onClick={() => document.getElementById("my_modal_5").showModal()}
-          >
+          <button className="btn btn-circle btn-info" onClick={onActionClicked}>
             Action
+          </button>
+        )}
+        {newRoundVisible && (
+          <button className="btn btn-circle btn-info" onClick={onNewRound}>
+            New round
           </button>
         )}
         <button

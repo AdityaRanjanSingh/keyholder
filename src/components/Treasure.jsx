@@ -1,31 +1,31 @@
 import { useEffect, useMemo, useState } from "react";
 import { useGameEngine } from "../hooks/useGameEngine";
-import bagsOfGold from "../assets/photos/bagsOfGold.jpg";
-import chestOfCopper from "../assets/photos/chestOfCopper.jpg";
+import gold from "../assets/photos/bagsOfGold.jpg";
+import jewels from "../assets/photos/crownJewels.jpg";
+import copper from "../assets/photos/chestOfCopper.jpg";
 import gildedStatue from "../assets/photos/gildedStatue.jpg";
 import magicRing from "../assets/photos/magicRing.jpg";
-import platinumPyramids from "../assets/photos/platinumPyramids.jpg";
-import silverGoblets from "../assets/photos/silverGoblets.jpg";
+import platinum from "../assets/photos/platinumPyramids.jpg";
+import silver from "../assets/photos/silverGoblets.jpg";
 
-export default ({ type = "bagsOfGold" }) => {
-  const [photo, setPhoto] = useState(bagsOfGold);
+export default ({ type = "gold" }) => {
+  const [photo, setPhoto] = useState(gold);
   const [title, setTitle] = useState("Bag of gold");
-
   useEffect(() => {
-    let newPhoto = bagsOfGold;
+    let newPhoto = gold;
     let newTitle = "Bag of gold";
     switch (type) {
-      case "bagsOfGold":
-        newPhoto = bagsOfGold;
+      case "gold":
+        newPhoto = gold;
         newTitle = "Bag of gold";
         break;
-      case "chestOfCopper":
-        newPhoto = chestOfCopper;
+      case "copper":
+        newPhoto = copper;
         newTitle = "Chest of copper";
 
         break;
-      case "crownJewels":
-        newPhoto = crownJewels;
+      case "jewels":
+        newPhoto = jewels;
         newTitle = "Crown jewels";
 
         break;
@@ -39,13 +39,13 @@ export default ({ type = "bagsOfGold" }) => {
         newTitle = "Magic ring";
 
         break;
-      case "platinumPyramids":
-        newPhoto = platinumPyramids;
+      case "platinum":
+        newPhoto = platinum;
         newTitle = "Platinum pyramids";
 
         break;
-      case "silverGoblets":
-        newPhoto = silverGoblets;
+      case "silver":
+        newPhoto = silver;
         newTitle = "Silver goblets";
         break;
     }

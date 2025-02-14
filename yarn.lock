@@ -1175,6 +1175,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"clsx@npm:^2.1.1":
+  version: 2.1.1
+  resolution: "clsx@npm:2.1.1"
+  checksum: 10c0/c4c8eb865f8c82baab07e71bfa8897c73454881c4f99d6bc81585aecd7c441746c1399d08363dc096c550cceaf97bd4ce1e8854e1771e9998d9f94c4fe075839
+  languageName: node
+  linkType: hard
+
 "color-convert@npm:^1.9.0":
   version: 1.9.3
   resolution: "color-convert@npm:1.9.3"
@@ -2578,6 +2585,7 @@ __metadata:
     react: "npm:^18.2.0"
     react-confetti: "npm:^6.2.2"
     react-dom: "npm:^18.2.0"
+    react-toastify: "npm:^11.0.3"
     tailwindcss: "npm:^3.4.1"
     three: "npm:0.153.0"
     three-stdlib: "npm:^2.35.13"
@@ -2656,6 +2664,18 @@ __metadata:
   version: 0.14.0
   resolution: "react-refresh@npm:0.14.0"
   checksum: 10c0/b8ae07ad153357d77830928a7f1fc2df837aabefee907fa273ba04c7643f3b860e986f1d4b7ada9b721c8d79b8c24b5b911a314a1a2398b105f1b13d19ea2b8d
+  languageName: node
+  linkType: hard
+
+"react-toastify@npm:^11.0.3":
+  version: 11.0.3
+  resolution: "react-toastify@npm:11.0.3"
+  dependencies:
+    clsx: "npm:^2.1.1"
+  peerDependencies:
+    react: ^18 || ^19
+    react-dom: ^18 || ^19
+  checksum: 10c0/23b989c6080bc5bf0eb0c1f7ed17bd53d067d9beb33baf93c520119cd69cf75c9f2d1ee524dfe6c8a2a5d326029772b576de00e018b379d03a0e37630b83adea
   languageName: node
   linkType: hard
 

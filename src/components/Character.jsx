@@ -20,7 +20,7 @@ export default ({ index = 0 }) => {
   const myRole = me.getState("role");
 
   const showRole =
-    phase === "end" || (myRole !== "wizard" && role === "keyholder");
+    phase === "result" || (myRole !== "wizard" && role === "keyholder");
 
   useEffect(() => {
     setPlayer({ photo, name, role });

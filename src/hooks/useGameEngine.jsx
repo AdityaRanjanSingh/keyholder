@@ -5,7 +5,8 @@ import {
   useMultiplayerState,
   usePlayersList,
 } from "playroomkit";
-import React, { useEffect, useMemo, useRef } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
+import { toast } from "react-toastify";
 import { randInt } from "three/src/math/MathUtils";
 
 const GameEngineContext = React.createContext();
@@ -190,7 +191,6 @@ const getPlayerRoles = (players) => {
 export const GameEngineProvider = ({ children }) => {
   // GAME STATE
   const [timer, setTimer] = useMultiplayerState("timer", 0);
-  const [mission, setMission] = useMultiplayerState("mission", 1);
   const [goodTeam, setGoodTeam] = useMultiplayerState("goodTeam", []);
   const [badTeam, setBadTeam] = useMultiplayerState("badTeam", []);
 
@@ -204,13 +204,17 @@ export const GameEngineProvider = ({ children }) => {
     []
   );
 
+  const [round, setRound] = useMultiplayerState("round", 0);
+  const [winner, setWinner] = useMultiplayerState("winner", 100);
+
   const [stoppedPlayer, setStoppedPlayer] = useMultiplayerState(
     "stoppedPlayer",
     100
   );
-
-  const [nominations, setNominations] = useMultiplayerState("nominations", []);
-  const [next, setNext] = useMultiplayerState("next", 0);
+  const [actionPlayer, setActionPlayer] = useMultiplayerState(
+    "actionPlayer",
+    100
+  );
 
   const [wizards, setWizards] = useMultiplayerState("wizards", []);
 
@@ -220,44 +224,29 @@ export const GameEngineProvider = ({ children }) => {
     () => getPlayerRoles(players.length),
     [players.length]
   );
-  const [missionPlayers, setMissionPlayers] = useMultiplayerState(
-    "missionPlayers",
-    []
-  );
+
   players.sort((a, b) => a.id.localeCompare(b.id)); // we sort players by id to have a consistent order through all clients
 
   const gameState = {
     timer,
-    mission,
     phase,
     playerTurn,
     playerStart,
-    missionPlayers,
     players,
     deck,
-    nominations,
     wizards,
+    round,
   };
 
   const startGame = () => {
     if (isHost()) {
       console.log("Start game");
-      setRolesDeck(
-        [
-          ...new Array(playerRoles.guard).fill(0).map(() => "guard"),
-          ...new Array(playerRoles.goodWizard).fill(0).map(() => "goodWizard"),
-          ...new Array(playerRoles.evilWizard).fill(0).map(() => "evilWizard"),
-          ...new Array(playerRoles.keyholder).fill(0).map(() => "keyholder"),
-          ...new Array(playerRoles.traitor).fill(0).map(() => "traitor"),
-        ],
-        true
-      );
       const shuffledArray = [
-        ...new Array(2).fill(0).map(() => "crownJewels"),
-        ...new Array(5).fill(0).map(() => "platinumPyramids"),
-        ...new Array(12).fill(0).map(() => "bagsOfGold"),
-        ...new Array(11).fill(0).map(() => "silverGoblets"),
-        ...new Array(5).fill(0).map(() => "chestOfCopper"),
+        ...new Array(2).fill(0).map(() => "jewels"),
+        ...new Array(5).fill(0).map(() => "platinum"),
+        ...new Array(12).fill(0).map(() => "gold"),
+        ...new Array(11).fill(0).map(() => "silver"),
+        ...new Array(5).fill(0).map(() => "copper"),
         ...new Array(5).fill(0).map(() => "magicRing"),
         ...new Array(2).fill(0).map(() => "gildedStatue"),
       ].sort((a, b) => 0.5 - Math.random());
@@ -265,11 +254,23 @@ export const GameEngineProvider = ({ children }) => {
       setTreasureDeck(shuffledArray, true);
       distributeRoles();
       setPhase("introduction", true);
-      setTimer(30, true);
+      players.forEach((player) => {
+        player.setState("treasureCards", [], true);
+      });
     }
   };
 
   const distributeRoles = () => {
+    setRolesDeck(
+      [
+        ...new Array(playerRoles.guard).fill(0).map(() => "guard"),
+        ...new Array(playerRoles.goodWizard).fill(0).map(() => "goodWizard"),
+        ...new Array(playerRoles.evilWizard).fill(0).map(() => "evilWizard"),
+        ...new Array(playerRoles.keyholder).fill(0).map(() => "keyholder"),
+        ...new Array(playerRoles.traitor).fill(0).map(() => "traitor"),
+      ],
+      true
+    );
     const newDeck = [...getState("rolesDeck")];
     const shuffledArray = newDeck.sort((a, b) => 0.5 - Math.random());
     const newWizards = [];
@@ -285,13 +286,20 @@ export const GameEngineProvider = ({ children }) => {
       } else {
         newBadTeam.push(index);
       }
+
+      const modalTitle = phase;
+      const modalBody = introductions[role];
+      player.setState("modalTitle", modalTitle);
+      player.setState("modalBody", modalBody);
       shuffledArray.splice(randomIndex, 1);
     });
+
     setWizards(newWizards, true);
     setGoodTeam(newGoodTeam, true);
     setBadTeam(newBadTeam, true);
   };
   const distributeTreasureCards = (winPlayers) => {
+    if (!isHost()) return;
     const newDeck = [...getState("treasureDeck")];
     winPlayers.forEach((index) => {
       const randomIndex = randInt(0, newDeck.length - 1);
@@ -322,26 +330,7 @@ export const GameEngineProvider = ({ children }) => {
     const selectedNominationCard = player.getState("selectedNominationCard");
     return cards[selectedNominationCard];
   };
-  const phaseEnd = () => {
-    let newTime = 0;
-    switch (getState("phase")) {
-      case "result":
-        setPhase("action", true);
-        break;
-      case "action":
-        setPhase("choosePlayerCard", true);
-        break;
-      case "choosePlayerCard":
-        setPhase("checkPoints", true);
-        break;
-      case "checkPoints":
-        setPhase("end", true);
-        break;
-      default:
-        break;
-    }
-    setTimer(newTime, true);
-  };
+  const phaseEnd = () => {};
 
   const timerInterval = useRef();
 
@@ -358,21 +347,7 @@ export const GameEngineProvider = ({ children }) => {
           });
         }
         break;
-      case "choosePlayer":
-        {
-          players.forEach((player, index) => {
-            const modalTitle =
-              stoppedPlayer === index
-                ? "You is choosing a player"
-                : `${
-                    players[stoppedPlayer].getProfile().name
-                  } is choosing a player`;
-            const modalBody = "";
-            player.setState("modalTitle", modalTitle);
-            player.setState("modalBody", modalBody);
-          });
-        }
-        break;
+
       case "result":
         {
           const stoppedPlayerRole = players[stoppedPlayer].getState("role");
@@ -382,6 +357,10 @@ export const GameEngineProvider = ({ children }) => {
           const isCorrectGuess =
             selectedPlayerRole === roleChoiceMap[stoppedPlayerRole];
           const isGoodTeam = goodTeam.includes(stoppedPlayer);
+          const toastMessage = `${
+            players[stoppedPlayer].getProfile().name
+          } made a ${isCorrectGuess ? "correct" : "wrong"} guess`;
+          toast(toastMessage);
           if (isCorrectGuess && isGoodTeam) {
             distributeTreasureCards(goodTeam);
           } else if (isCorrectGuess) {
@@ -393,17 +372,67 @@ export const GameEngineProvider = ({ children }) => {
           }
         }
         break;
+      case "choosePlayer":
+        {
+          const message =
+            players[stoppedPlayer].getProfile().name +
+            ` is choosing the a player`;
+          toast(message);
+        }
+        break;
       default:
         break;
     }
   };
+
+  const checkWinner = () => {
+    const winner = players.find((player) => {
+      const treasureCount = player.getState("treasureCount");
+      return treasureCount >= 10;
+    });
+    if (winner) {
+      const index = players.findIndex((player) => player.id === winner.id);
+      setWinner(index, true);
+      setPhase("end");
+      toast(
+        `${winner.getProfile().name} is the winner with ${winner.getState(
+          "treasureCount"
+        )}`
+      );
+    }
+  };
   useEffect(() => {
     setModalContent();
+    checkWinner();
   }, [phase]);
   const setNextPlayerTurn = () => {
     const newPlayerTurn = (getState("playerTurn") + 1) % players.length;
     setPlayerTurn(newPlayerTurn, true);
   };
+
+  const setNewRoundState = () => {
+    setGoodTeam([], true);
+    setBadTeam([], true);
+    setStoppedPlayer(100, true);
+    setWizards([], true);
+    players.forEach((player) => {
+      player.setState("selectedPlayer", 100, true);
+      player.setState("role", "", true);
+      player.setState("modalTitle", "", true);
+      player.setState("modalBody", "", true);
+    });
+  };
+
+  const startNewRound = () => {
+    setPhase("introduction");
+    setNewRoundState();
+    distributeRoles();
+  };
+
+  useEffect(() => {
+    if (!round) return;
+    startNewRound();
+  }, [round]);
 
   const runTimer = () => {
     timerInterval.current = setInterval(() => {
@@ -423,10 +452,6 @@ export const GameEngineProvider = ({ children }) => {
     runTimer();
     return clearTimer;
   }, [phase]);
-
-  useEffect(() => {
-    if (isHost() && next) phaseEnd();
-  }, [next]);
 
   const clearTimer = () => {
     clearInterval(timerInterval.current);
