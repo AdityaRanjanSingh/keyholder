@@ -1,10 +1,10 @@
 import { isHost, isStreamScreen, myPlayer, setState } from "playroomkit";
 import { useEffect, useState } from "react";
 import { useGameEngine } from "../hooks/useGameEngine";
-import ResistanceCharacter from "./ResistanceCharacter";
+import Character from "./Character";
 import Wizard from "./Wizard";
-import { toast } from "react-toastify";
 import Confetti from "react-confetti";
+import Treasure from "./Treasure";
 
 const audios = {
   background: new Audio("/audios/Drunken Sailor - Cooper Cannell.mp3"),
@@ -16,25 +16,11 @@ const audios = {
   cards: new Audio("/audios/cards.mp3"),
 };
 
-const introductions = {
-  goodWizard:
-    "You are the Good Wizard! Your goal is to help the group complete their mission and identify the Traitor.",
-  evilWizard:
-    "You are the Evil Wizard! You secretly work against the group, but they don’t know it. Your goal is to find out which player is the Key Holder and stop them from succeeding.",
-  keyholder:
-    "You are the Key Holder! Your goal is to find the Good Wizard and secretly pass them the key. Be careful—if you give it to the wrong person, disaster may follow! Watch the players, look for signs of trust, and make your choice wisely.",
-  guard:
-    "You are a Guard! Your goal is to protect the group by identifying the Traitor. Pay close attention to everyone’s actions and words—someone is working against you. Work with the team, trust wisely, and uncover the traitor before it's too late!",
-  wizard:
-    "You are a Guard! Your goal is to protect the group by identifying the Bad Wizard. Pay close attention to everyone’s actions and words—someone is working against you. Work with the team, trust wisely, and uncover the traitor before it's too late!",
-  traitor:
-    "You are the Traitor! You secretly work with the Bad Wizard to find the Key Holder, but the group thinks you're on their side. Earn their trust, gather information, and subtly guide the Bad Wizard to their target. Be careful—if they suspect you, your plan could fall apart!",
-};
-
 export default () => {
   const { phase, players, wizards, timer } = useGameEngine();
   const [modalButton, setModalButton] = useState("Okay");
   const [stopVisible, setStopVisible] = useState(true);
+  const [actionVisible, setActionVisible] = useState(false);
 
   const [confettiVisible, setConfettiVisible] = useState(false);
 
@@ -43,7 +29,7 @@ export default () => {
   const modalTitle = me.getState("modalTitle");
   const modalBody = me.getState("modalBody");
 
-  console.log({ modalTitle, modalBody });
+  const treasureCards = me.getState("treasureCards") || [];
 
   const myIndex = players.findIndex((player) => player.id === me.id);
 
@@ -56,11 +42,10 @@ export default () => {
   }, [phase]);
 
   useEffect(() => {
-    if (role !== "traitor" && phase === "introduction") {
-      setStopVisible(true);
-    } else {
-      setStopVisible(false);
-    }
+    const isStopVisible = role !== "traitor" && phase === "introduction";
+    const isActionVisible = phase === "action";
+    setStopVisible(isStopVisible);
+    setActionVisible(isActionVisible);
   }, [role, phase]);
 
   // AUDIO MANAGER
@@ -77,7 +62,7 @@ export default () => {
 
   const onPlayerSelect = (index) => {
     me.setState("selectedPlayer", index, true);
-    setState("phase", "");
+    setState("phase", "result");
   };
 
   useEffect(() => {
@@ -151,8 +136,11 @@ export default () => {
               {players.map(
                 (player, index) =>
                   !wizards.includes(index) && (
-                    <button className="justify-start" onClick={() => onPlayerSelect(index)}>
-                      <ResistanceCharacter key={index} index={index} />
+                    <button
+                      className="justify-start"
+                      onClick={() => onPlayerSelect(index)}
+                    >
+                      <Character key={index} index={index} />
                     </button>
                   )
               )}
@@ -161,7 +149,6 @@ export default () => {
         </div>
       </div>
       {/* Open the modal using document.getElementById('ID').showModal() method */}
-
       <dialog id="my_modal_5" className="modal modal-bottom sm:modal-middle">
         <div className="modal-box">
           <h3 className="font-bold text-lg">{modalTitle}</h3>
@@ -173,19 +160,34 @@ export default () => {
           </div>
         </div>
       </dialog>
-      <div className="absolute flex justify-center bottom-10 left-auto right-auto w-full">
+      <div className="m-5">
+        <div className="flex flex-row items-center gap-2">
+          <h2 className="text-xl font-semibold">Treasure</h2>
+          <div className="badge badge-accent">5</div>
+        </div>
+        {treasureCards.map(() => (
+          <Treasure></Treasure>
+        ))}
+      </div>
+      <div className="absolute flex flex-col-reverse bottom-10 right-10 gap-2">
         {stopVisible && (
-          <button className="btn btn-active btn-primary" onClick={onStopClick}>
+          <button className="btn btn-circle btn-primary" onClick={onStopClick}>
             Stop
           </button>
         )}
-      </div>
-      <div className="absolute flex bottom-10 right-10">
+        {actionVisible && (
+          <button
+            className="btn btn-circle btn-info"
+            onClick={() => document.getElementById("my_modal_5").showModal()}
+          >
+            Action
+          </button>
+        )}
         <button
           className="btn btn-circle btn-info"
           onClick={() => document.getElementById("my_modal_5").showModal()}
         >
-          ?
+          Help
         </button>
       </div>
     </>
