@@ -21,7 +21,7 @@ export default ({ index = 0 }) => {
 
   const showRole =
     !["introduction", "choosePlayer"].includes(phase) ||
-    (myRole !== "wizard" && role === "keyholder");
+    (!/wizard/.test(myRole) && role === "keyholder");
 
   useEffect(() => {
     setPlayer({ photo, name, role });
