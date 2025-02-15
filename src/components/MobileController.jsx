@@ -147,10 +147,12 @@ export default () => {
                 {role}
               </h2>
             </div>
-            <div className="flex flex-col">
-              <h3 className="text-md capitalize">{phase}</h3>
-              <h3>{timer}</h3>
-            </div>
+            {isHost() && (
+              <div className="flex flex-col">
+                <h3 className="text-md capitalize">{phase}</h3>
+                <h3>{timer}</h3>
+              </div>
+            )}
           </div>
           <div className="card bg-base-300 shadow-xl p-5 justify-center m-5">
             <h2 className="text-2xl text-center font-bold uppercase">
