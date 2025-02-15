@@ -8,37 +8,34 @@ export default () => {
   const treasureCards = me.getState("treasureCards") || [];
   const treasureCount = me.getState("treasureCount") || 0;
 
+  const [treasure, setTreasure] = useState([]);
+
   useEffect(() => {
-    const jewels = treasureCards.filter(
-      (treasure) => treasure === "jewels"
-    ).length;
+    const jewels = treasureCards.filter(({ type }) => type === "jewels").length;
     const platinum = treasureCards.filter(
-      (treasure) => treasure === "platinum"
+      ({ type }) => type === "platinum"
     ).length;
-    const gold = treasureCards.filter((treasure) => treasure === "gold").length;
-    const silver = treasureCards.filter(
-      (treasure) => treasure === "silver"
-    ).length;
-    const copper = treasureCards.filter(
-      (treasure) => treasure === "copper"
-    ).length;
+    const gold = treasureCards.filter(({ type }) => type === "gold").length;
+    const silver = treasureCards.filter(({ type }) => type === "silver").length;
+    const copper = treasureCards.filter(({ type }) => type === "copper").length;
     const magicRing = treasureCards.filter(
-      (treasure) => treasure === "magicRing"
+      ({ type }) => type === "magicRing"
     ).length;
     const gildedStatue = treasureCards.filter(
-      (treasure) => treasure === "gildedStatue"
+      ({ type }) => type === "gildedStatue"
     ).length;
 
-    const count =
-      5 * jewels +
-      4 * platinum +
-      3 * gold +
-      2 * silver +
-      1 * copper +
-      magicRing * 1 +
-      gildedStatue * 0;
-    me.setState("treasureCount", count);
-  }, [treasureCards]);
+    const treasures = [];
+    if (jewels) treasures.push({ type: "jewels", count: jewels });
+    if (platinum) treasures.push({ type: "platinum", count: platinum });
+    if (gold) treasures.push({ type: "gold", count: gold });
+    if (silver) treasures.push({ type: "silver", count: silver });
+    if (copper) treasures.push({ type: "copper", count: copper });
+    if (magicRing) treasures.push({ type: "magicRing", count: magicRing });
+    if (gildedStatue)
+      treasures.push({ type: "gildedStatue", count: gildedStatue });
+    setTreasure(treasures);
+  }, [treasureCards.length]);
 
   return (
     <div className="absolute gap-2 bottom-5 left-5">
@@ -46,8 +43,11 @@ export default () => {
         <h2 className="text-xl font-semibold">Treasures</h2>
         <div className="badge badge-accent">{treasureCount}</div>
       </div>
-      {treasureCards.map((type) => (
-        <Treasure key={type} type={type}></Treasure>
+      {treasure.map(({ type, count }) => (
+        <div className="flex flex-row items-center gap-2" key={type}>
+          <Treasure type={type}></Treasure>
+          <h4>x {count}</h4>
+        </div>
       ))}
     </div>
   );

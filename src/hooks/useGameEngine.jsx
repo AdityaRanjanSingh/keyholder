@@ -6,7 +6,6 @@ import {
   usePlayersList,
 } from "playroomkit";
 import React, { useEffect, useMemo, useRef, useState } from "react";
-import { toast } from "react-toastify";
 import { randInt } from "three/src/math/MathUtils";
 
 const GameEngineContext = React.createContext();
@@ -236,6 +235,8 @@ export const GameEngineProvider = ({ children }) => {
     deck,
     wizards,
     round,
+    winner,
+    stoppedPlayer,
   };
 
   const startGame = () => {
@@ -253,7 +254,6 @@ export const GameEngineProvider = ({ children }) => {
 
       setTreasureDeck(shuffledArray, true);
       distributeRoles();
-      setPhase("introduction", true);
       players.forEach((player) => {
         player.setState("treasureCards", [], true);
       });
@@ -261,6 +261,7 @@ export const GameEngineProvider = ({ children }) => {
   };
 
   const distributeRoles = () => {
+    setPhase("introduction", true);
     setRolesDeck(
       [
         ...new Array(playerRoles.guard).fill(0).map(() => "guard"),
@@ -286,17 +287,40 @@ export const GameEngineProvider = ({ children }) => {
       } else {
         newBadTeam.push(index);
       }
-
-      const modalTitle = phase;
+      const modalTitle = "introduction";
       const modalBody = introductions[role];
       player.setState("modalTitle", modalTitle);
       player.setState("modalBody", modalBody);
       shuffledArray.splice(randomIndex, 1);
     });
-
     setWizards(newWizards, true);
     setGoodTeam(newGoodTeam, true);
     setBadTeam(newBadTeam, true);
+    setTimer(120);
+  };
+
+  const countTreasure = (treasures) => {
+    const jewels = treasures.filter(({ type }) => type === "jewels").length;
+    const platinum = treasures.filter(({ type }) => type === "platinum").length;
+    const gold = treasures.filter(({ type }) => type === "gold").length;
+    const silver = treasures.filter(({ type }) => type === "silver").length;
+    const copper = treasures.filter(({ type }) => type === "copper").length;
+    const magicRing = treasures.filter(
+      ({ type }) => type === "magicRing"
+    ).length;
+    const gildedStatue = treasures.filter(
+      ({ type }) => type === "gildedStatue"
+    ).length;
+
+    const count =
+      5 * jewels +
+      4 * platinum +
+      3 * gold +
+      2 * silver +
+      1 * copper +
+      magicRing * 1 +
+      gildedStatue * 0;
+    return count;
   };
   const distributeTreasureCards = (winPlayers) => {
     if (!isHost()) return;
@@ -304,9 +328,16 @@ export const GameEngineProvider = ({ children }) => {
     winPlayers.forEach((index) => {
       const randomIndex = randInt(0, newDeck.length - 1);
       const pTreasureCards = players[index].getState("treasureCards") || [];
+      const cards = [
+        ...pTreasureCards,
+        { type: newDeck[randomIndex], used: false },
+      ];
+      const count = countTreasure(cards);
+      players[index].setState("treasureCards", cards, true);
+      players[index].setState("treasureCount", count, true);
       players[index].setState(
-        "treasureCards",
-        [...pTreasureCards, newDeck[randomIndex]],
+        "toastMessage",
+        "You have drawn a " + newDeck[randomIndex],
         true
       );
       newDeck.splice(randomIndex, 1);
@@ -318,66 +349,138 @@ export const GameEngineProvider = ({ children }) => {
     // onPlayerJoin(startGame); // we restart the game when a new player joins
   }, []);
 
-  const getCard = () => {
-    const player = players[getState("playerTurn")];
-    if (!player) {
-      return "";
+  const phaseEnd = () => {
+    let newTime = 0;
+    switch (phase) {
+      case "result":
+        const pStopped = players[stoppedPlayer];
+        const stoppedPlayerRole = pStopped.getState("role");
+        const selectedPlayer = pStopped.getState("selectedPlayer");
+        const selectedPlayerRole = players[selectedPlayer].getState("role");
+        const isCorrectGuess =
+          selectedPlayerRole === roleChoiceMap[stoppedPlayerRole];
+        const isGoodTeam = goodTeam.includes(stoppedPlayer);
+        players.forEach((player) => {
+          player.setState(
+            "toastMessage",
+            `${pStopped.getProfile().name} has made a ${
+              isCorrectGuess ? "correct" : "wrong"
+            } guess`,
+            true
+          );
+        });
+        if (isCorrectGuess && isGoodTeam) {
+          distributeTreasureCards(goodTeam);
+        } else if (isCorrectGuess) {
+          distributeTreasureCards(badTeam);
+        } else if (isGoodTeam && !isCorrectGuess) {
+          distributeTreasureCards(badTeam);
+        } else {
+          distributeTreasureCards(goodTeam);
+        }
+        setPhase("revealTreasureCard");
+        break;
+      case "revealTreasureCard":
+        newTime = 15;
+        players.forEach((player) => {
+          const treasureCards = player.getState("treasureCards") || [];
+          const hasUnsedRing = treasureCards.some(
+            (card) => card.type === "magicRing" && !card.used
+          );
+          player.setState("selectedPlayer", -1);
+          if (hasUnsedRing) {
+            player.setState(
+              "toastMessage",
+              "Touch the magic ring to use it",
+              true
+            );
+          }
+        });
+        setPhase("takeAction");
+        break;
+      case "takeAction":
+        newTime = 15;
+        setPhase("actionPlay");
+        break;
+      case "actionPlay":
+        newTime = 15;
+        let toastMessages = [];
+        players.forEach((player) => {
+          const selectedPlayer = player.getState("selectedPlayer");
+          const currentPlayerCards = player.getState("treasureCards") || [];
+          if (selectedPlayer !== -1) {
+            const treasureCards =
+              players[selectedPlayer].getState("treasureCards") || [];
+            if (treasureCards.length !== 0) {
+              const randomIndex = randInt(0, treasureCards.length - 1);
+              const gildedStatueIndex = treasureCards.findIndex(
+                (card) => card.type === "gildedStatue"
+              );
+              const cardIndex =
+                gildedStatueIndex !== -1 ? gildedStatueIndex : randomIndex;
+              const stolenCards = treasureCards.splice(cardIndex, 1);
+              players[selectedPlayer].setState(
+                "treasureCards",
+                treasureCards,
+                true
+              ),
+                toastMessages.push(
+                  `${player.getProfile().name} used magic ring on ${
+                    players[selectedPlayer].getProfile().name
+                  } and took ${stolenCards[0].type} card`
+                );
+
+              const magicRingIndex = currentPlayerCards.findIndex(
+                (card) => card.type === "magicRing"
+              );
+              currentPlayerCards.splice(magicRingIndex, 1, {
+                type: "magicRing",
+                used: true,
+              });
+              player.setState("treasureCards", [
+                ...currentPlayerCards,
+                ...stolenCards,
+              ]);
+              player.setState("selectedPlayer", -1);
+            }
+          }
+        });
+        players.forEach((player) => {
+          toastMessages.map((message) =>
+            player.setState("toastMessage", message)
+          );
+        });
+
+        break;
+      default:
+        break;
     }
-    const cards = player.getState("cards");
-    if (!cards) {
-      return "";
-    }
-    const selectedNominationCard = player.getState("selectedNominationCard");
-    return cards[selectedNominationCard];
+    setTimer(newTime);
   };
-  const phaseEnd = () => {};
 
   const timerInterval = useRef();
 
   const setModalContent = () => {
     switch (phase) {
-      case "introduction":
+      case "choosePlayer":
         {
           players.forEach((player) => {
-            const role = player.getState("role");
-            const modalTitle = phase;
-            const modalBody = introductions[role];
-            player.setState("modalTitle", modalTitle);
-            player.setState("modalBody", modalBody);
+            const role = players[stoppedPlayer].getState("role");
+            const message =
+              players[stoppedPlayer].getProfile().name +
+              ` is a ${role} and choosing the ${roleChoiceMap[role]}`;
+
+            player.setState("toastMessage", message, true);
           });
         }
         break;
-
-      case "result":
+      case "end":
         {
-          const stoppedPlayerRole = players[stoppedPlayer].getState("role");
-          const selectedPlayer =
-            players[stoppedPlayer].getState("selectedPlayer");
-          const selectedPlayerRole = players[selectedPlayer].getState("role");
-          const isCorrectGuess =
-            selectedPlayerRole === roleChoiceMap[stoppedPlayerRole];
-          const isGoodTeam = goodTeam.includes(stoppedPlayer);
-          const toastMessage = `${
-            players[stoppedPlayer].getProfile().name
-          } made a ${isCorrectGuess ? "correct" : "wrong"} guess`;
-          toast(toastMessage);
-          if (isCorrectGuess && isGoodTeam) {
-            distributeTreasureCards(goodTeam);
-          } else if (isCorrectGuess) {
-            distributeTreasureCards(badTeam);
-          } else if (isGoodTeam && !isCorrectGuess) {
-            distributeTreasureCards(badTeam);
-          } else {
-            distributeTreasureCards(goodTeam);
-          }
-        }
-        break;
-      case "choosePlayer":
-        {
-          const message =
-            players[stoppedPlayer].getProfile().name +
-            ` is choosing the a player`;
-          toast(message);
+          players.forEach((player) => {
+            const name = players[winner].getProfile().name;
+            const message = `${name} is the winner`;
+            player.setState("toastMessage", message, true);
+          });
         }
         break;
       default:
@@ -386,19 +489,13 @@ export const GameEngineProvider = ({ children }) => {
   };
 
   const checkWinner = () => {
-    const winner = players.find((player) => {
+    const winner = players.findIndex((player) => {
       const treasureCount = player.getState("treasureCount");
       return treasureCount >= 10;
     });
-    if (winner) {
-      const index = players.findIndex((player) => player.id === winner.id);
-      setWinner(index, true);
-      setPhase("end");
-      toast(
-        `${winner.getProfile().name} is the winner with ${winner.getState(
-          "treasureCount"
-        )}`
-      );
+    if (winner !== -1) {
+      setWinner(winner, true);
+      setPhase("end", true);
     }
   };
   useEffect(() => {
@@ -410,7 +507,8 @@ export const GameEngineProvider = ({ children }) => {
     setPlayerTurn(newPlayerTurn, true);
   };
 
-  const setNewRoundState = () => {
+  const startNewRound = () => {
+    setPhase("introduction", true);
     setGoodTeam([], true);
     setBadTeam([], true);
     setStoppedPlayer(100, true);
@@ -421,16 +519,11 @@ export const GameEngineProvider = ({ children }) => {
       player.setState("modalTitle", "", true);
       player.setState("modalBody", "", true);
     });
-  };
-
-  const startNewRound = () => {
-    setPhase("introduction");
-    setNewRoundState();
     distributeRoles();
   };
 
   useEffect(() => {
-    if (!round) return;
+    if (!round || !isHost()) return;
     startNewRound();
   }, [round]);
 
@@ -462,7 +555,6 @@ export const GameEngineProvider = ({ children }) => {
       value={{
         ...gameState,
         startGame,
-        getCard,
       }}
     >
       {children}

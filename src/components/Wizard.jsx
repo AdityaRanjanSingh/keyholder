@@ -1,8 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { useGameEngine } from "../hooks/useGameEngine";
 import { myPlayer } from "playroomkit";
-import wizardPhoto from "../assets/photos/wizard.jpg";
-import wizardRed from "../assets/photos/wizard-red.jpg";
 
 export default ({ index = 0 }) => {
   const { players, phase } = useGameEngine();
@@ -23,7 +21,8 @@ export default ({ index = 0 }) => {
   const myRole = me.getState("role");
 
   const showRole =
-    phase === "result" || (myRole !== "wizard" && role === "keyholder");
+    !["introduction", "choosePlayer"].includes(phase) ||
+    (myRole !== "wizard" && role === "keyholder");
 
   useEffect(() => {
     setPlayer({ photo, name, role });

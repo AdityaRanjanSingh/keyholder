@@ -4,7 +4,6 @@ import { useGameEngine } from "../hooks/useGameEngine";
 import Character from "./Character";
 import Wizard from "./Wizard";
 import Confetti from "react-confetti";
-import Treasure from "./Treasure";
 import Treasures from "./Treasures";
 import { toast } from "react-toastify";
 
@@ -19,7 +18,8 @@ const audios = {
 };
 
 export default () => {
-  const { phase, players, wizards, timer, round } = useGameEngine();
+  const { phase, players, wizards, timer, round, winner, stoppedPlayer } =
+    useGameEngine();
   const [modalButton, setModalButton] = useState("Okay");
   const [stopVisible, setStopVisible] = useState(true);
 
@@ -32,26 +32,31 @@ export default () => {
   const role = me.getState("role");
   const modalTitle = me.getState("modalTitle");
   const modalBody = me.getState("modalBody");
+  const toastMessage = me.getState("toastMessage");
 
   const treasureCards = me.getState("treasureCards") || [];
 
   const myIndex = players.findIndex((player) => player.id === me.id);
 
   useEffect(() => {
-    setConfettiVisible(phase === "end");
-    setTimeout(() => {
-      setConfettiVisible(false);
-    }, 10000);
+    if (toastMessage) toast(`${toastMessage}`);
+  }, [toastMessage]);
+  useEffect(() => {
+    const isConfettiVisible = phase === "end" && myIndex === winner;
+    setConfettiVisible(isConfettiVisible);
   }, [phase]);
 
   useEffect(() => {
-    document.getElementById("my_modal_5").showModal();
+    if (modalTitle !== "" || modalBody !== "") {
+      document.getElementById("my_modal_5").showModal();
+    }
   }, [modalTitle, modalBody, modalButton]);
 
   useEffect(() => {
     const isStopVisible = role !== "traitor" && phase === "introduction";
     const isActionVisible =
-      phase === "result" && treasureCards.some((type) => type === "magicRing");
+      phase === "result" &&
+      treasureCards.some(({ type }) => type === "magicRing");
     const isNewRoundVisible = isHost();
     setStopVisible(isStopVisible);
     setActionVisible(isActionVisible);
@@ -67,8 +72,8 @@ export default () => {
   const onStopClick = () => {
     setState("stoppedPlayer", myIndex, true);
     setState("phase", "choosePlayer", true);
-   
-    setState("timer", 10, true);
+    setState("timer", 15, true);
+    toast("Choose a player");
   };
 
   const onNewRound = () => {
@@ -76,13 +81,20 @@ export default () => {
   };
 
   const onPlayerSelect = (index) => {
-    me.setState("selectedPlayer", index, true);
-    setState("phase", "result");
+    if (stoppedPlayer === myIndex && phase === "choosePlayer") {
+      me.setState("selectedPlayer", index, true);
+      setState("phase", "result", true);
+      setState("timer", 0, true);
+    }
+    if (phase === "takeAction") {
+      toast("You have chosen " + players[index].getProfile().name);
+      me.setState("selectedPlayer", index, true);
+    }
   };
 
   const onActionClicked = () => {
     setState("setActionPlayer", myIndex);
-    setState("phase", "actionPlayer");
+    setState("phase", "takeAction");
   };
 
   useEffect(() => {
@@ -106,10 +118,11 @@ export default () => {
     <>
       <Confetti
         gravity={0.1}
-        numberOfPieces={200}
+        numberOfPieces={1000}
         opacity={1}
         wind={0}
         run={confettiVisible}
+        recycle={false}
       />
       <div className="flex justify-center">
         <div className="artboard  w-full">
@@ -127,12 +140,15 @@ export default () => {
               </div>
             </div>
             <div className="flex-1 flex-col items-start">
-              <h2 className="text-lg text-start uppercase">
+              <h2 className="text-lg text-primary text-start uppercase">
                 {me.getProfile().name}
               </h2>
-              <h2 className="text-sm text-start uppercase">{role}</h2>
+              <h2 className="text-sm text-start text-secondary  uppercase">
+                {role}
+              </h2>
             </div>
-            <div className="">
+            <div className="flex flex-col">
+              <h3 className="text-md capitalize">{phase}</h3>
               <h3>{timer}</h3>
             </div>
           </div>
@@ -172,7 +188,7 @@ export default () => {
       {/* Open the modal using document.getElementById('ID').showModal() method */}
       <dialog id="my_modal_5" className="modal modal-bottom sm:modal-middle">
         <div className="modal-box">
-          <h3 className="font-bold text-lg">{modalTitle}</h3>
+          <h3 className="font-bold text-lg capitalize">{modalTitle}</h3>
           <p className="py-4">{modalBody}</p>
           <div className="modal-action">
             <form method="dialog">
@@ -199,10 +215,10 @@ export default () => {
           </button>
         )}
         <button
-          className="btn btn-circle btn-info"
+          className="btn btn-circle btn-neutral"
           onClick={() => document.getElementById("my_modal_5").showModal()}
         >
-          Help
+          ?
         </button>
       </div>
     </>
