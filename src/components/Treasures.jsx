@@ -40,7 +40,7 @@ export default () => {
   return (
     <div className="absolute gap-2 bottom-5 left-5">
       <div className="flex flex-row items-center gap-2">
-        <h2 className="text-xl font-semibold">Treasures</h2>
+        <h2 className="text-xl font-semibold">Treasure</h2>
         <div className="badge badge-accent">{treasureCount}</div>
       </div>
       {treasure.map(({ type, count }) => (
