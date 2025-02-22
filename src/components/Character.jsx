@@ -5,15 +5,20 @@ import { myPlayer } from "playroomkit";
 export default ({ index = 0 }) => {
   const { players, phase } = useGameEngine();
 
-  const [player, setPlayer] = useState({
-    photo: "https://api.dicebear.com/9.x/personas/svg",
-    name: "test",
-    role: "Guard",
-  });
-
-  const photo = players[index].getProfile().photo;
+  const photo =
+    players[index].getProfile().photo ??
+    "https://api.dicebear.com/9.x/personas/svg";
   const name = players[index].getProfile().name;
   const role = players[index].getState("role");
+
+  const player = useMemo(
+    () => ({
+      photo,
+      name,
+      role,
+    }),
+    [photo === true, name, role]
+  );
 
   const me = myPlayer();
 
@@ -22,10 +27,6 @@ export default ({ index = 0 }) => {
   const showRole =
     !["introduction", "choosePlayer"].includes(phase) ||
     (!["goodWizard", "evilWizard"].includes(myRole) && role === "keyholder");
-
-  useEffect(() => {
-    setPlayer({ photo, name, role });
-  }, [photo === true, name, role]);
 
   return (
     <div
