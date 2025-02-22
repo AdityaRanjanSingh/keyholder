@@ -4,6 +4,7 @@ import {
   onPlayerJoin,
   useMultiplayerState,
   usePlayersList,
+  onDisconnect,
 } from "playroomkit";
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { randInt } from "three/src/math/MathUtils";
@@ -346,7 +347,8 @@ export const GameEngineProvider = ({ children }) => {
   };
   useEffect(() => {
     startGame();
-    // onPlayerJoin(startGame); // we restart the game when a new player joins
+    onPlayerJoin(startGame); // we restart the game when a new player joins
+    onDisconnect(startGame);
   }, []);
 
   const phaseEnd = () => {

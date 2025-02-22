@@ -7,6 +7,7 @@ import "./index.css";
 insertCoin({
   gameId: "a0xaPjlAzIDR2nXv4WKQ",
   maxPlayersPerRoom: 10,
+  reconnectGracePeriod: 10 * 60 * 1000,
 }).then(() => {
   ReactDOM.createRoot(document.getElementById("root")).render(
     <React.StrictMode>
