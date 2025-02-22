@@ -6,22 +6,14 @@ import Wizard from "../components/Wizard";
 import Confetti from "react-confetti";
 import Treasures from "../components/Treasures";
 import { toast } from "react-toastify";
-
-const audios = {
-  background: new Audio("/audios/Drunken Sailor - Cooper Cannell.mp3"),
-  introductions: new Audio("/audios/introduction.mp3"),
-  punch: new Audio("/audios/punch.mp3"),
-  shield: new Audio("/audios/shield.mp3"),
-  grab: new Audio("/audios/grab.mp3"),
-  fail: new Audio("/audios/fail.mp3"),
-  cards: new Audio("/audios/cards.mp3"),
-};
+import { useNavigate } from "react-router";
 
 export default () => {
   const { phase, players, wizards, timer, round, winner, stoppedPlayer } =
     useGameEngine();
   const [modalButton, setModalButton] = useState("Okay");
   const [stopVisible, setStopVisible] = useState(true);
+  const navigate = useNavigate();
 
   const [actionVisible, setActionVisible] = useState(false);
   const [newRoundVisible, setNewRoundVisible] = useState(false);
@@ -97,23 +89,6 @@ export default () => {
     setState("phase", "takeAction");
   };
 
-  useEffect(() => {
-    if (!audioEnabled) {
-      return;
-    }
-    let audioToPlay;
-    if (phase === "introductions") {
-      audioToPlay = audios.introductions;
-    }
-
-    if (phase === "voting") {
-      audioToPlay = audios.cards;
-    }
-    if (audioToPlay) {
-      audioToPlay.currentTime = 0;
-      audioToPlay.play();
-    }
-  }, [phase, audioEnabled]);
   return (
     <>
       <Confetti
@@ -205,7 +180,7 @@ export default () => {
           <button className="btn btn-primary" onClick={onStopClick}>
             Stop
             <svg
-              className="h-4 w-4"
+              className="h-6 w-6"
               xmlns="http://www.w3.org/2000/svg"
               viewBox="0 0 24 24"
               fill="currentColor"
@@ -218,7 +193,7 @@ export default () => {
           <button className="btn  btn-primary" onClick={onActionClicked}>
             Ring
             <svg
-              className="h-4 w-4"
+              className="h-6 w-6"
               xmlns="http://www.w3.org/2000/svg"
               viewBox="0 0 24 24"
               fill="currentColor"
@@ -231,7 +206,7 @@ export default () => {
           <button className="btn btn-secondary" onClick={onNewRound}>
             New round
             <svg
-              className="h-4 w-4"
+              className="h-6 w-6"
               xmlns="http://www.w3.org/2000/svg"
               viewBox="0 0 24 24"
               fill="currentColor"
@@ -247,20 +222,17 @@ export default () => {
           Introduction
           <svg
             xmlns="http://www.w3.org/2000/svg"
-            className="h-4 w-4"
+            className="h-6 w-6"
             viewBox="0 0 24 24"
             fill="currentColor"
           >
             <path d="M12 22C6.47715 22 2 17.5228 2 12C2 6.47715 6.47715 2 12 2C17.5228 2 22 6.47715 22 12C22 17.5228 17.5228 22 12 22ZM12 20C16.4183 20 20 16.4183 20 12C20 7.58172 16.4183 4 12 4C7.58172 4 4 7.58172 4 12C4 16.4183 7.58172 20 12 20ZM11 15H13V17H11V15ZM13 13.3551V14H11V12.5C11 11.9477 11.4477 11.5 12 11.5C12.8284 11.5 13.5 10.8284 13.5 10C13.5 9.17157 12.8284 8.5 12 8.5C11.2723 8.5 10.6656 9.01823 10.5288 9.70577L8.56731 9.31346C8.88637 7.70919 10.302 6.5 12 6.5C13.933 6.5 15.5 8.067 15.5 10C15.5 11.5855 14.4457 12.9248 13 13.3551Z"></path>
           </svg>
         </button>
-        <button
-          className="btn"
-          onClick={() => document.getElementById("my_modal_5").showModal()}
-        >
+        <button className="btn" onClick={() => navigate("/learn")}>
           How to play
           <svg
-            className="h-4 w-4"
+            className="h-6 w-6"
             xmlns="http://www.w3.org/2000/svg"
             viewBox="0 0 24 24"
             fill="currentColor"
