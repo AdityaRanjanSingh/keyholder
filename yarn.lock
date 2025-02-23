@@ -2263,6 +2263,7 @@ __metadata:
     react-confetti: "npm:^6.2.2"
     react-dom: "npm:^18.2.0"
     react-router: "npm:^7.2.0"
+    react-tiny-fab: "npm:^4.0.4"
     react-toastify: "npm:^11.0.3"
     remixicon: "npm:^4.6.0"
     tailwindcss: "npm:^3.4.1"
@@ -2361,6 +2362,15 @@ __metadata:
     react-dom:
       optional: true
   checksum: 10c0/eb3fe57405a90d22f0a5455a3f73ec60fe2808a579d37bf130c192dfde18ebab06353e2cda2ed0f67701a6c43445eab1c1b6caa1347e5635dc65ff3028b7c2e2
+  languageName: node
+  linkType: hard
+
+"react-tiny-fab@npm:^4.0.4":
+  version: 4.0.4
+  resolution: "react-tiny-fab@npm:4.0.4"
+  peerDependencies:
+    react: ">=16.8"
+  checksum: 10c0/7b2115dc7504669660a05649b1dfcd244db1b7b5e12110c665a565e6f7cc72a13ccc449896ce240dfafcb8f103fdf2282f8cd9e7550dc023903abfa85b5da08b
   languageName: node
   linkType: hard
 

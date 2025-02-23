@@ -19,6 +19,7 @@
     "react-confetti": "^6.2.2",
     "react-dom": "^18.2.0",
     "react-router": "^7.2.0",
+    "react-tiny-fab": "^4.0.4",
     "react-toastify": "^11.0.3",
     "remixicon": "^4.6.0",
     "three": "0.153.0",
