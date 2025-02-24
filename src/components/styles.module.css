@@ -1,0 +1,17 @@
+.c {
+  position: absolute;
+  cursor: pointer;
+  will-change: transform, opacity;
+
+}
+
+.front,
+.back {
+  background-size: cover;
+}
+.container {
+  display: flex;
+  align-items: center;
+  height: 100%;
+  justify-content: center;
+}

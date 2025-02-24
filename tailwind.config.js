@@ -6,11 +6,11 @@ export default {
   theme: {
     extend: {},
     fontFamily: {
-      sans: ["Rubik Mono One", "sans-serif"],
+      sans: ["MedievalSharp", "sans-serif"],
     },
   },
   daisyui: {
     themes: ["dim"],
   },
-  plugins: [daisyui],
+  plugins: [require("@tailwindcss/typography"),daisyui],
 };

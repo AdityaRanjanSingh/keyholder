@@ -1,11 +1,17 @@
 import { insertCoin } from "playroomkit";
 import React from "react";
 import ReactDOM from "react-dom/client";
-import App from "./App";
 import { GameEngineProvider } from "./hooks/useGameEngine";
 import "./index.css";
 import { BrowserRouter, Route, Routes } from "react-router";
-import Learn from "./screens/Learn";
+import Discussion from "./screens/discussion";
+import Stop from "./screens/stop";
+import Treasure from "./screens/treasure";
+import Role from "./screens/role";
+import Wizard from "./screens/wizard";
+import Keyholder from "./screens/keyholder";
+import Ring from "./screens/ring";
+import End from "./screens/end";
 
 insertCoin({
   gameId: "a0xaPjlAzIDR2nXv4WKQ",
@@ -17,8 +23,15 @@ insertCoin({
       <GameEngineProvider>
         <BrowserRouter>
           <Routes>
-            <Route index element={<App />} />
-            <Route path="/learn" element={<Learn />} />
+            <Route index element={<Role />} />
+            <Route path="/role" element={<Role />} />
+            <Route path="/wizard" element={<Wizard />} />
+            <Route path="/keyholder" element={<Keyholder />} />
+            <Route path="/discussion" element={<Discussion />} />
+            <Route path="/stop" element={<Stop />} />
+            <Route path="/treasure" element={<Treasure />} />
+            <Route path="/ring" element={<Ring />} />
+            <Route path="/end" element={<End />} />
           </Routes>
         </BrowserRouter>
       </GameEngineProvider>

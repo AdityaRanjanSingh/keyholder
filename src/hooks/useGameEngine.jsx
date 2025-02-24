@@ -9,6 +9,17 @@ import {
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { randInt } from "three/src/math/MathUtils";
 
+export const Phases = [
+  "role",
+  "wizard",
+  "keyholder",
+  "discussion",
+  "stop",
+  "treasure",
+  "ring",
+  "end",
+];
+export const Time = [15, 15, 15, 60, 15, 15, 15, -1];
 const GameEngineContext = React.createContext();
 
 export const NB_MISSIONS = 5;
@@ -195,6 +206,7 @@ export const GameEngineProvider = ({ children }) => {
   const [badTeam, setBadTeam] = useMultiplayerState("badTeam", []);
 
   const [phase, setPhase] = useMultiplayerState("phase", "lobby");
+  const [phaseNo, setPhaseNo] = useMultiplayerState("phaseNo", 0);
   const [playerTurn, setPlayerTurn] = useMultiplayerState("playerTurn", 0);
   const [playerStart, setPlayerStart] = useMultiplayerState("playerStart", 0);
   const [deck, setDeck] = useMultiplayerState("deck", []);
@@ -211,11 +223,6 @@ export const GameEngineProvider = ({ children }) => {
     "stoppedPlayer",
     100
   );
-  const [actionPlayer, setActionPlayer] = useMultiplayerState(
-    "actionPlayer",
-    100
-  );
-
   const [wizards, setWizards] = useMultiplayerState("wizards", []);
 
   const players = usePlayersList(true);
@@ -238,6 +245,7 @@ export const GameEngineProvider = ({ children }) => {
     round,
     winner,
     stoppedPlayer,
+    phaseNo,
   };
 
   const startGame = () => {
@@ -258,11 +266,13 @@ export const GameEngineProvider = ({ children }) => {
       players.forEach((player) => {
         player.setState("treasureCards", [], true);
       });
+      setTimer(Time[phaseNo]);
     }
   };
 
   const distributeRoles = () => {
-    setPhase("introduction", true);
+    const firstPhase = Phases[phaseNo];
+    setPhase(firstPhase, true);
     setRolesDeck(
       [
         ...new Array(playerRoles.guard).fill(0).map(() => "guard"),
@@ -297,9 +307,8 @@ export const GameEngineProvider = ({ children }) => {
     setWizards(newWizards, true);
     setGoodTeam(newGoodTeam, true);
     setBadTeam(newBadTeam, true);
-    setTimer(120);
+    setTimer(Time[phaseNo]);
   };
-
   const countTreasure = (treasures) => {
     const jewels = treasures.filter(({ type }) => type === "jewels").length;
     const platinum = treasures.filter(({ type }) => type === "platinum").length;
@@ -347,13 +356,31 @@ export const GameEngineProvider = ({ children }) => {
   };
   useEffect(() => {
     startGame();
-    onPlayerJoin(startGame); // we restart the game when a new player joins
-    onDisconnect(startGame);
   }, []);
 
   const phaseEnd = () => {
     let newTime = 0;
     switch (phase) {
+      case "role":
+        setPhase(Phases[phaseNo + 1], true);
+        setTimer(Time[phaseNo + 1], true);
+        setPhaseNo(phaseNo + 1, true);
+        break;
+      case "wizards":
+        break;
+      case "keyholder":
+        break;
+      case "discussion":
+        break;
+      case "stop":
+        break;
+      case "treasure":
+        break;
+      case "ring":
+        break;
+      case "end":
+        break;
+
       case "result":
         const pStopped = players[stoppedPlayer];
         const stoppedPlayerRole = pStopped.getState("role");
