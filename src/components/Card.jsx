@@ -1,5 +1,4 @@
-import React, { useEffect, useState } from "react";
-import { useSpring, a } from "@react-spring/web";
+"use client";
 import CardBack from "../assets/photos/card-back.jpg";
 import Copper from "../assets/photos/copper.jpg";
 import Gold from "../assets/photos/gold.jpg";
@@ -11,16 +10,12 @@ import Keyholder from "../assets/photos/keyholder.jpg";
 import GoodWizard from "../assets/photos/wizard-good.jpg";
 import EvilWizard from "../assets/photos/wizard-evil.jpg";
 
-import styles from "./styles.module.css";
+import React, { useState, useEffect } from "react";
+import { motion } from "framer-motion";
 
-export default function App({ type = "gold" }) {
+const FlippingCard = ({ type = "gold" }) => {
   const [photo, setPhoto] = useState(Gold);
-  const [flipped, set] = useState(false);
-  const { transform, opacity } = useSpring({
-    opacity: flipped ? 1 : 0,
-    transform: `perspective(600px) rotateY(${flipped ? 180 : 0}deg)`,
-    config: { mass: 5, tension: 500, friction: 80 },
-  });
+  const [isFlipped, setIsFlipped] = useState(false);
   useEffect(() => {
     let photoType = Gold;
     switch (type) {
@@ -54,34 +49,59 @@ export default function App({ type = "gold" }) {
     setPhoto(photoType);
   }, [type]);
   return (
-    <div
-      className={styles.container}
-      onClick={() => set((state) => !state)}
+    <motion.div
+      className="w-20 h-28 m-5"
+      style={{
+        perspective: "600px", // Adds depth for 3D animation
+      }}
     >
-      <a.div
-        className={`${styles.c} ${styles.back} w-40`}
-        style={{ opacity: opacity.to((o) => 1 - o), transform }}
-      >
-        <div className="card bg-base-100 shadow-xl">
-          <figure>
-            <img src={CardBack} alt="Back" />
-          </figure>
-        </div>
-      </a.div>
-      <a.div
-        className={`${styles.c} ${styles.front} w-40`}
+      <motion.div
+        animate={{ rotateY: isFlipped ? 180 : 0 }} // Animates the flip
+        transition={{ duration: 1 }} // Controls the flip speed
         style={{
-          opacity,
-          transform,
-          rotateY: "180deg",
+          width: "100%",
+          height: "100%",
+          position: "relative",
+          transformStyle: "preserve-3d", // Enables 3D effect
         }}
       >
-        <div className="card bg-base-100 shadow-xl">
+        {/* Front Side */}
+        <motion.div
+          onClick={() => setIsFlipped(!isFlipped)}
+          style={{
+            position: "absolute",
+            backfaceVisibility: "hidden", // Ensures only one side is visible
+            width: "100%",
+            height: "100%",
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+          }}
+        >
           <figure>
-            <img src={photo} alt={type} />
+            <img src={photo} alt="Shoes" className="rounded-sm" />
           </figure>
-        </div>
-      </a.div>
-    </div>
+        </motion.div>
+        <motion.div
+          onClick={() => setIsFlipped(!isFlipped)}
+          style={{
+            position: "absolute",
+            backfaceVisibility: "hidden",
+            transform: "rotateY(180deg)", // Flips the back face
+            width: "100%",
+            height: "100%",
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+          }}
+        >
+          <figure>
+            <img src={CardBack} alt="Shoes" />
+          </figure>
+        </motion.div>
+      </motion.div>
+    </motion.div>
   );
-}
+};
+
+export default FlippingCard;

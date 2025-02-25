@@ -1,5 +1,4 @@
 import React, { useState } from "react";
-import { useSpring, a } from "@react-spring/web";
 import Card from "../components/Card";
 import Confetti from "react-confetti";
 
@@ -17,7 +16,7 @@ export default function App() {
         recycle={false}
       />
       <div className="flex justify-center">
-        <div className="artboard  w-full h-full">
+        <div className="artboard  w-full h-full phone">
           <Card />
           <Card />
         </div>
