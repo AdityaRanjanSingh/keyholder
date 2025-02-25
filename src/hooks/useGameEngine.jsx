@@ -46,8 +46,8 @@ const roleChoiceMap = {
 const getPlayerRoles = (players) => {
   if (players === 4) {
     const alignments = [
-      ...new Array(1).fill(0).map(() => "goodWizard"),
-      ...new Array(1).fill(0).map(() => "evilWizard"),
+      ...new Array(1).fill(0).map(() => "wizard-good"),
+      ...new Array(1).fill(0).map(() => "wizard-evil"),
     ];
     const shuffledArray = alignments.sort((a, b) => 0.5 - Math.random());
     const wizards = Array(1)
@@ -62,14 +62,14 @@ const getPlayerRoles = (players) => {
       traitor: 1,
       keyholder: 1,
       guard: 1,
-      goodWizard: wizards.filter((role) => role === "goodWizard").length,
-      evilWizard: wizards.filter((role) => role === "evilWizard").length,
+      goodWizard: wizards.filter((role) => role === "wizard-good").length,
+      evilWizard: wizards.filter((role) => role === "wizard-evil").length,
     };
   }
   if (players === 5) {
     const alignments = [
-      ...new Array(1).fill(0).map(() => "goodWizard"),
-      ...new Array(1).fill(0).map(() => "evilWizard"),
+      ...new Array(1).fill(0).map(() => "wizard-good"),
+      ...new Array(1).fill(0).map(() => "wizard-evil"),
     ];
     const shuffledArray = alignments.sort((a, b) => 0.5 - Math.random());
     const wizards = Array(2)
@@ -84,14 +84,14 @@ const getPlayerRoles = (players) => {
       traitor: 1,
       keyholder: 1,
       guard: 1,
-      goodWizard: wizards.filter((role) => role === "goodWizard").length,
-      evilWizard: wizards.filter((role) => role === "evilWizard").length,
+      goodWizard: wizards.filter((role) => role === "wizard-good").length,
+      evilWizard: wizards.filter((role) => role === "wizard-evil").length,
     };
   }
   if (players === 6) {
     const alignments = [
-      ...new Array(1).fill(0).map(() => "goodWizard"),
-      ...new Array(1).fill(0).map(() => "evilWizard"),
+      ...new Array(1).fill(0).map(() => "wizard-good"),
+      ...new Array(1).fill(0).map(() => "wizard-evil"),
     ];
     const shuffledArray = alignments.sort((a, b) => 0.5 - Math.random());
     const wizards = Array(2)
@@ -106,14 +106,14 @@ const getPlayerRoles = (players) => {
       traitor: 1,
       keyholder: 1,
       guard: 2,
-      goodWizard: wizards.filter((role) => role === "goodWizard").length,
-      evilWizard: wizards.filter((role) => role === "evilWizard").length,
+      goodWizard: wizards.filter((role) => role === "wizard-good").length,
+      evilWizard: wizards.filter((role) => role === "wizard-evil").length,
     };
   }
   if (players === 7) {
     const alignments = [
-      ...new Array(1).fill(0).map(() => "goodWizard"),
-      ...new Array(1).fill(0).map(() => "evilWizard"),
+      ...new Array(1).fill(0).map(() => "wizard-good"),
+      ...new Array(1).fill(0).map(() => "wizard-evil"),
     ];
     const shuffledArray = alignments.sort((a, b) => 0.5 - Math.random());
     const wizards = Array(2)
@@ -128,14 +128,14 @@ const getPlayerRoles = (players) => {
       traitor: 1,
       keyholder: 1,
       guard: 3,
-      goodWizard: wizards.filter((role) => role === "goodWizard").length,
-      evilWizard: wizards.filter((role) => role === "evilWizard").length,
+      goodWizard: wizards.filter((role) => role === "wizard-good").length,
+      evilWizard: wizards.filter((role) => role === "wizard-evil").length,
     };
   }
   if (players === 8) {
     const alignments = [
-      ...new Array(1).fill(0).map(() => "goodWizard"),
-      ...new Array(1).fill(0).map(() => "evilWizard"),
+      ...new Array(1).fill(0).map(() => "wizard-good"),
+      ...new Array(1).fill(0).map(() => "wizard-evil"),
     ];
     const shuffledArray = alignments.sort((a, b) => 0.5 - Math.random());
     const wizards = Array(2)
@@ -150,14 +150,14 @@ const getPlayerRoles = (players) => {
       traitor: 2,
       keyholder: 1,
       guard: 3,
-      goodWizard: wizards.filter((role) => role === "goodWizard").length,
-      evilWizard: wizards.filter((role) => role === "evilWizard").length,
+      goodWizard: wizards.filter((role) => role === "wizard-good").length,
+      evilWizard: wizards.filter((role) => role === "wizard-evil").length,
     };
   }
   if (players === 9) {
     const alignments = [
-      ...new Array(2).fill(0).map(() => "goodWizard"),
-      ...new Array(2).fill(0).map(() => "evilWizard"),
+      ...new Array(2).fill(0).map(() => "wizard-good"),
+      ...new Array(2).fill(0).map(() => "wizard-evil"),
     ];
     const shuffledArray = alignments.sort((a, b) => 0.5 - Math.random());
     const wizards = Array(2)
@@ -172,14 +172,14 @@ const getPlayerRoles = (players) => {
       traitor: 2,
       keyholder: 1,
       guard: 3,
-      goodWizard: wizards.filter((role) => role === "goodWizard").length,
-      evilWizard: wizards.filter((role) => role === "evilWizard").length,
+      goodWizard: wizards.filter((role) => role === "wizard-good").length,
+      evilWizard: wizards.filter((role) => role === "wizard-evil").length,
     };
   }
   if (players === 10) {
     const alignments = [
-      ...new Array(2).fill(0).map(() => "goodWizard"),
-      ...new Array(2).fill(0).map(() => "evilWizard"),
+      ...new Array(2).fill(0).map(() => "wizard-good"),
+      ...new Array(2).fill(0).map(() => "wizard-evil"),
     ];
     const shuffledArray = alignments.sort((a, b) => 0.5 - Math.random());
     const wizards = Array(2)
@@ -194,8 +194,8 @@ const getPlayerRoles = (players) => {
       traitor: 2,
       keyholder: 1,
       guard: 4,
-      goodWizard: wizards.filter((role) => role === "goodWizard").length,
-      evilWizard: wizards.filter((role) => role === "evilWizard").length,
+      goodWizard: wizards.filter((role) => role === "wizard-good").length,
+      evilWizard: wizards.filter((role) => role === "wizard-evil").length,
     };
   }
 };
@@ -276,8 +276,8 @@ export const GameEngineProvider = ({ children }) => {
     setRolesDeck(
       [
         ...new Array(playerRoles.guard).fill(0).map(() => "guard"),
-        ...new Array(playerRoles.goodWizard).fill(0).map(() => "goodWizard"),
-        ...new Array(playerRoles.evilWizard).fill(0).map(() => "evilWizard"),
+        ...new Array(playerRoles.goodWizard).fill(0).map(() => "wizard-good"),
+        ...new Array(playerRoles.evilWizard).fill(0).map(() => "wizard-evil"),
         ...new Array(playerRoles.keyholder).fill(0).map(() => "keyholder"),
         ...new Array(playerRoles.traitor).fill(0).map(() => "traitor"),
       ],

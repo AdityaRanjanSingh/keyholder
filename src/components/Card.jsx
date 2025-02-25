@@ -1,6 +1,7 @@
 "use client";
 import CardBack from "../assets/photos/card-back.jpg";
 import Copper from "../assets/photos/copper.jpg";
+import Traitor from "../assets/photos/traitor.jpg";
 import Gold from "../assets/photos/gold.jpg";
 import Jewel from "../assets/photos/jewel.jpg";
 import Platinum from "../assets/photos/platinum.jpg";
@@ -34,7 +35,7 @@ const FlippingCard = ({ type = "gold" }) => {
       case "wizard-good":
         photoType = GoodWizard;
         break;
-      case "wizard-bad":
+      case "wizard-evil":
         photoType = EvilWizard;
         break;
       case "keyholder":
@@ -43,6 +44,9 @@ const FlippingCard = ({ type = "gold" }) => {
       case "guard":
         photoType = Guard;
         break;
+      case "traitor":
+        photoType = Traitor;
+        break;
       default:
         photoType = Gold;
     }
@@ -50,7 +54,7 @@ const FlippingCard = ({ type = "gold" }) => {
   }, [type]);
   return (
     <motion.div
-      className="w-20 h-28 m-5"
+      className="w-[100px] h-[150px] overflow-hidden"
       style={{
         perspective: "600px", // Adds depth for 3D animation
       }}
@@ -58,10 +62,8 @@ const FlippingCard = ({ type = "gold" }) => {
       <motion.div
         animate={{ rotateY: isFlipped ? 180 : 0 }} // Animates the flip
         transition={{ duration: 1 }} // Controls the flip speed
+        className="w-full h-full relative"
         style={{
-          width: "100%",
-          height: "100%",
-          position: "relative",
           transformStyle: "preserve-3d", // Enables 3D effect
         }}
       >
@@ -79,7 +81,7 @@ const FlippingCard = ({ type = "gold" }) => {
           }}
         >
           <figure>
-            <img src={photo} alt="Shoes" className="rounded-sm" />
+            <img src={CardBack} alt="Shoes" className="rounded-sm" />
           </figure>
         </motion.div>
         <motion.div
@@ -96,7 +98,7 @@ const FlippingCard = ({ type = "gold" }) => {
           }}
         >
           <figure>
-            <img src={CardBack} alt="Shoes" />
+            <img src={photo} alt="Shoes" />
           </figure>
         </motion.div>
       </motion.div>
