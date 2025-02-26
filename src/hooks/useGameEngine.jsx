@@ -11,6 +11,7 @@ import { randInt } from "three/src/math/MathUtils";
 
 export const Phases = [
   "ready",
+  "shuffle",
   "role",
   "wizard",
   "keyholder",
@@ -261,7 +262,7 @@ export const GameEngineProvider = ({ children }) => {
         ...new Array(5).fill(0).map(() => "copper"),
         ...new Array(5).fill(0).map(() => "magicRing"),
         ...new Array(2).fill(0).map(() => "gildedStatue"),
-      ].sort((a, b) => 0.5 - Math.random());
+      ].sort(() => 0.5 - Math.random());
 
       setTreasureDeck(shuffledArray, true);
       distributeRoles();
@@ -356,25 +357,38 @@ export const GameEngineProvider = ({ children }) => {
     });
     setTreasureDeck(newDeck, true);
   };
-  useEffect(() => {
-    startGame();
-  }, []);
 
   const phaseEnd = () => {
     let newTime = 0;
     switch (phase) {
+      case "shuffle":
+        setPhase("role");
+        newTime = 5;
+        break;
       case "role":
-        setPhase(Phases[phaseNo + 1], true);
-        setTimer(Time[phaseNo + 1], true);
-        setPhaseNo(phaseNo + 1, true);
+        setPhase("role-description");
+        newTime = 15;
+        break;
+      case "role-description":
+        startGame();
+        setPhase("wizards");
+        newTime = 15;
         break;
       case "wizards":
+        newTime = 15;
+        setPhase("keyholder");
         break;
       case "keyholder":
+        newTime = 15;
+        setPhase("keyholder");
         break;
       case "discussion":
+        newTime = 15;
+        setPhase("discussion");
         break;
       case "stop":
+        newTime = 15;
+        setPhase("stop");
         break;
       case "treasure":
         break;
@@ -486,7 +500,7 @@ export const GameEngineProvider = ({ children }) => {
       default:
         break;
     }
-    // setTimer(newTime);
+    setTimer(newTime);
   };
 
   const timerInterval = useRef();
@@ -561,12 +575,14 @@ export const GameEngineProvider = ({ children }) => {
   const runTimer = () => {
     timerInterval.current = setInterval(() => {
       if (!isHost()) return;
-      let newTime = getState("timer") - 1;
+      const time = getState("timer");
+      let newTime = time - 1;
       console.log("Timer", newTime);
 
       if (newTime <= 0) {
         phaseEnd();
       } else {
+        if (isNaN(newTime)) newTime = 0;
         setTimer(newTime, true);
       }
     }, 1000);

@@ -1,5 +1,5 @@
-import MobileController from "./MobileController";
+import Controller from "./controller";
 
 export default () => {
-  return <MobileController />;
+  return <Controller />;
 };
