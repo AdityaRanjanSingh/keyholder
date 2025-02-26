@@ -98,8 +98,9 @@ const FlippingCard = ({ type = "gold" }) => {
           }}
         >
           <figure>
-            <img src={photo} alt="Shoes" />
+            <img src={photo} />
           </figure>
+          <h2 className="absolute bottom-0 text-primary text-xl glass w-full text-center">{type}</h2>
         </motion.div>
       </motion.div>
     </motion.div>

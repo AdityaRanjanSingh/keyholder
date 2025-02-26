@@ -3,6 +3,7 @@ import { useEffect, useMemo } from "react";
 import { useNavigate } from "react-router";
 import { Phases, Time, useGameEngine } from "../hooks/useGameEngine";
 import { toast } from "react-toastify";
+import CardBack from "../assets/photos/card-back.jpg";
 
 const getRoleTitle = (role) => {
   let roleTitle = "";
@@ -66,18 +67,20 @@ export default () => {
     if (phase !== "lobby") navigate(phase);
   }, [phaseNo]);
   return (
-    <div className="card bg-base-100 image-full w-96 shadow-xl">
-      <figure>
-        <img
-          src="https://img.daisyui.com/images/stock/photo-1606107557195-0e29a4b5b4aa.webp"
-          alt="Shoes"
-        />
-      </figure>
-      <div className="card-body">
-        <h2 className="card-title">Shoes!</h2>
-        <p>If a dog chews shoes whose shoes does he choose?</p>
-        <div className="card-actions justify-end">
-          <button className="btn btn-primary">Buy Now</button>
+    <div className="flex justify-center" style={{ backgroundColor: "#004F4F" }}>
+      <div className="card bg-base-100 image-full  shadow-xl">
+        <figure className="w-[100px] h-[150px]">
+          <img
+            src={CardBack}
+            alt="Shoes"
+          />
+        </figure>
+        <div className="card-body">
+          <h2 className="card-title">Shoes!</h2>
+          <p>If a dog chews shoes whose shoes does he choose?</p>
+          <div className="card-actions justify-end">
+            <button className="btn btn-primary">Buy Now</button>
+          </div>
         </div>
       </div>
     </div>

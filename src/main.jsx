@@ -23,7 +23,7 @@ insertCoin({
       <GameEngineProvider>
         <BrowserRouter>
           <Routes>
-            <Route index element={<Role />} />
+            <Route index element={<Keyholder />} />
             <Route path="/role" element={<Role />} />
             <Route path="/wizard" element={<Wizard />} />
             <Route path="/keyholder" element={<Keyholder />} />

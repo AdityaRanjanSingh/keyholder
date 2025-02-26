@@ -8,6 +8,7 @@ import Treasures from "../components/Treasures";
 import { toast } from "react-toastify";
 import { useNavigate } from "react-router";
 import Fab from "../components/Fab";
+import Header from "../components/Header";
 
 export default () => {
   const { phase, players, wizards, timer, round, winner, stoppedPlayer } =
@@ -102,34 +103,7 @@ export default () => {
       />
       <div className="flex justify-center">
         <div className="artboard  w-full">
-          <div className="navbar bg-base-300 gap-2 align-middle">
-            <div className="flex-none gap-2">
-              <div className="dropdown dropdown-end">
-                <div className="btn-circle avatar">
-                  <div className="w-15 rounded-full">
-                    <img
-                      alt="Tailwind CSS Navbar component"
-                      src={me.getProfile().photo}
-                    />
-                  </div>
-                </div>
-              </div>
-            </div>
-            <div className="flex-1 flex-col items-start">
-              <h2 className="text-lg text-primary text-start uppercase">
-                {me.getProfile().name}
-              </h2>
-              <h2 className="text-sm text-start text-secondary  uppercase">
-                {role}
-              </h2>
-            </div>
-            {isHost() && (
-              <div className="flex flex-col">
-                <h3 className="text-md capitalize">{phase}</h3>
-                <h3>{timer}</h3>
-              </div>
-            )}
-          </div>
+         <Header></Header>
           <div className="card bg-base-300 shadow-xl p-5 justify-center m-5">
             <h2 className="text-2xl text-center font-bold uppercase">
               Wizards

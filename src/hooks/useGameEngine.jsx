@@ -10,11 +10,13 @@ import React, { useEffect, useMemo, useRef, useState } from "react";
 import { randInt } from "three/src/math/MathUtils";
 
 export const Phases = [
+  "ready",
   "role",
   "wizard",
   "keyholder",
   "discussion",
   "stop",
+  "result",
   "treasure",
   "ring",
   "end",
@@ -266,7 +268,7 @@ export const GameEngineProvider = ({ children }) => {
       players.forEach((player) => {
         player.setState("treasureCards", [], true);
       });
-      setTimer(Time[phaseNo]);
+      // setTimer(Time[phaseNo]);
     }
   };
 
@@ -307,7 +309,7 @@ export const GameEngineProvider = ({ children }) => {
     setWizards(newWizards, true);
     setGoodTeam(newGoodTeam, true);
     setBadTeam(newBadTeam, true);
-    setTimer(Time[phaseNo]);
+    // setTimer(Time[phaseNo]);
   };
   const countTreasure = (treasures) => {
     const jewels = treasures.filter(({ type }) => type === "jewels").length;
@@ -484,7 +486,7 @@ export const GameEngineProvider = ({ children }) => {
       default:
         break;
     }
-    setTimer(newTime);
+    // setTimer(newTime);
   };
 
   const timerInterval = useRef();
