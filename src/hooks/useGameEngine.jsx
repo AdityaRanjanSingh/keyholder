@@ -11,17 +11,28 @@ import { randInt } from "three/src/math/MathUtils";
 
 export const Phases = [
   "ready",
-  "shuffle",
+  "role-description",
   "role",
+  "wizard-description",
   "wizard",
+  "keyholder-description",
   "keyholder",
+  "discussion-description",
   "discussion",
+  "stop-description",
   "stop",
+  "result-description",
   "result",
+  "treasure-description",
   "treasure",
+  "ring-description",
   "ring",
+  "choose-player",
+  "choose-card",
   "end",
 ];
+
+export const INTRODUCTION_TIME = 5;
 export const Time = [15, 15, 15, 60, 15, 15, 15, -1];
 const GameEngineContext = React.createContext();
 
@@ -362,45 +373,59 @@ export const GameEngineProvider = ({ children }) => {
     let newTime = 0;
     switch (phase) {
       case "shuffle":
-        setPhase("role");
-        newTime = 5;
-        break;
-      case "role":
         setPhase("role-description");
-        newTime = 15;
+        newTime = INTRODUCTION_TIME;
         break;
       case "role-description":
-        startGame();
-        setPhase("wizards");
-        newTime = 15;
+        setPhase("role");
+        newTime = INTRODUCTION_TIME;
         break;
-      case "wizards":
-        newTime = 15;
+      case "role":
+        setPhase("wizard-description");
+        newTime = INTRODUCTION_TIME;
+        break;
+      case "wizard-description":
+        startGame();
+        setPhase("wizard");
+        newTime = INTRODUCTION_TIME;
+        break;
+      case "wizard":
+        newTime = INTRODUCTION_TIME;
+        setPhase("keyholder-description");
+        break;
+      case "keyholder-description":
+        newTime = INTRODUCTION_TIME;
         setPhase("keyholder");
         break;
       case "keyholder":
-        newTime = 15;
-        setPhase("keyholder");
+        newTime = INTRODUCTION_TIME;
+        setPhase("discussion-description");
         break;
-      case "discussion":
-        newTime = 15;
+      case "discussion-description":
+        newTime = INTRODUCTION_TIME;
         setPhase("discussion");
         break;
-      case "stop":
-        newTime = 15;
+      case "discussion":
+        newTime = INTRODUCTION_TIME;
+        setPhase("stop-description");
+        break;
+      case "stop-description":
+        newTime = INTRODUCTION_TIME;
         setPhase("stop");
         break;
-      case "treasure":
+      case "stop":
+        newTime = INTRODUCTION_TIME;
+        setPhase("result-description");
         break;
-      case "ring":
+      case "result-description":
+        newTime = INTRODUCTION_TIME;
+        setPhase("result");
         break;
-      case "end":
-        break;
-
-      case "result":
-        const pStopped = players[stoppedPlayer];
+      case "result": {
+        newTime = INTRODUCTION_TIME;
+        const pStopped = players[stoppedPlayer] ?? players[0];
         const stoppedPlayerRole = pStopped.getState("role");
-        const selectedPlayer = pStopped.getState("selectedPlayer");
+        const selectedPlayer = pStopped.getState("selectedPlayer") ?? 0;
         const selectedPlayerRole = players[selectedPlayer].getState("role");
         const isCorrectGuess =
           selectedPlayerRole === roleChoiceMap[stoppedPlayerRole];
@@ -423,10 +448,37 @@ export const GameEngineProvider = ({ children }) => {
         } else {
           distributeTreasureCards(goodTeam);
         }
-        setPhase("revealTreasureCard");
+        setPhase("treasure-description");
+        break;
+      }
+      case "treasure-description":
+        newTime = INTRODUCTION_TIME;
+        setPhase("treasure");
+        break;
+      case "treasure":
+        newTime = INTRODUCTION_TIME;
+        setPhase("ring-description");
+        break;
+      case "ring-description":
+        newTime = INTRODUCTION_TIME;
+        setPhase("ring");
+        break;
+      case "ring":
+        newTime = INTRODUCTION_TIME;
+        setPhase("choose-player");
+        break;
+      case "choose-player":
+        newTime = INTRODUCTION_TIME;
+        setPhase("choose-card");
+        break;
+      case "choose-card":
+        newTime = INTRODUCTION_TIME;
+        setPhase("choose-card");
+        break;
+      case "end":
         break;
       case "revealTreasureCard":
-        newTime = 15;
+        newTime = INTRODUCTION_TIME;
         players.forEach((player) => {
           const treasureCards = player.getState("treasureCards") || [];
           const hasUnsedRing = treasureCards.some(
@@ -444,11 +496,11 @@ export const GameEngineProvider = ({ children }) => {
         setPhase("takeAction");
         break;
       case "takeAction":
-        newTime = 15;
+        newTime = INTRODUCTION_TIME;
         setPhase("actionPlay");
         break;
       case "actionPlay":
-        newTime = 15;
+        newTime = INTRODUCTION_TIME;
         let toastMessages = [];
         players.forEach((player) => {
           const selectedPlayer = player.getState("selectedPlayer");

@@ -5,6 +5,7 @@ import { useGameEngine } from "../hooks/useGameEngine";
 import FlippingCard from "../components/Card";
 import Header from "../components/Header";
 import FabButton from "../components/FabButton";
+import { LettersPullUp } from "../components/gradual-spacing";
 
 const getPhaseTitle = (phase) => {
   let title = "";
@@ -12,25 +13,56 @@ const getPhaseTitle = (phase) => {
     case "lobby":
       title = "Ready to start new round";
       break;
-    case "role":
+    case "shuffle":
       title = "Assigning roles";
       break;
+    case "role-description":
+      title = "role-description";
+      break;
+    case "role":
+      title = "role";
+      break;
+    case "wizard-description":
+      title = "wizard-description";
+      break;
     case "wizard":
-      title = "Revealing wizards";
+      title = "wizard";
+      break;
+    case "keyholder-description":
+      title = "keyholder-description";
       break;
     case "keyholder":
-      title = "Revealing keyholder";
+      title = "keyholder";
+      break;
+    case "discussion-description":
+      title = "discussion-description";
       break;
     case "discussion":
-      title = "Discussion phase";
+      title = "discussion";
+      break;
+    case "stop-description":
+      title = "stop-description";
       break;
     case "stop":
-      title = "Stop phase";
+      title = "stop";
+      break;
+    case "result-description":
+      title = "result-description";
+      break;
     case "result":
-      title = "Winning team";
+      title = "result";
+      break;
+    case "treasure-description":
+      title = "treasure-description";
+      break;
+    case "treasure":
+      title = "treasure";
+      break;
+    case "ring-description":
+      title = "ring-description";
       break;
     case "ring":
-      title = "Use magic ring";
+      title = "ring";
       break;
     default:
       title = phase;
@@ -49,9 +81,24 @@ export default () => {
     setState("phase", "shuffle", true);
   };
 
-  const isPlayerCardsVisible = ["ready", "role-description", "role"].includes(
-    phase
-  );
+  const isPlayerCardsVisible = [
+    "ready",
+    "role",
+    "wizard",
+    "keyholder",
+    "stop",
+  ].includes(phase);
+  const isPhaseIntroductionVisible = [
+    "lobby",
+    "role-description",
+    "wizard-description",
+    "keyholder-description",
+    "discussion-description",
+    "stop-description",
+    "result-description",
+    "treasure-description",
+    "ring-description",
+  ].includes(phase);
   return (
     <div className="overflow-scroll h-full">
       <Header></Header>
@@ -65,10 +112,10 @@ export default () => {
           ))}
         </div>
       )}
-      {phase === "lobby" && (
+      {isPhaseIntroductionVisible && (
         <div className="content-center" style={{ height: "90%" }}>
           <div className="flex-col my-5">
-            <h1 className="text-5xl text-center">{title}</h1>
+            <LettersPullUp text={title}></LettersPullUp>
           </div>
           {isHost() && phase === "lobby" && (
             <div className="flex justify-center">
