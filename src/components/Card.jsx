@@ -10,13 +10,17 @@ import Guard from "../assets/photos/guard.jpg";
 import Keyholder from "../assets/photos/keyholder.jpg";
 import GoodWizard from "../assets/photos/wizard-good.jpg";
 import EvilWizard from "../assets/photos/wizard-evil.jpg";
+import WizardBack from "../assets/photos/wizard-back.jpg";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import { motion } from "framer-motion";
+import { useGameEngine } from "../hooks/useGameEngine";
+import { myPlayer } from "playroomkit";
 
-const FlippingCard = ({ type = "gold" }) => {
+const FlippingCard = ({ type = "gold", className = "", flipped }) => {
   const [photo, setPhoto] = useState(Gold);
-  const [isFlipped, setIsFlipped] = useState(false);
+  const { phase } = useGameEngine();
+  const player = myPlayer();
   useEffect(() => {
     let photoType = Gold;
     switch (type) {
@@ -52,9 +56,24 @@ const FlippingCard = ({ type = "gold" }) => {
     }
     setPhoto(photoType);
   }, [type]);
+  const role = player.getState("role");
+  const isFlipped = useMemo(() => {
+    const isWizardVisible =
+      phase === "result" && ["wizard-good", "wizard-evil"].includes(type);
+    const isKeyholderVisible =
+      ["keyholder"].includes(phase) &&
+      !["wizard-good", "wizard-evil"].includes(role) &&
+      type === "keyholder";
+
+    return isWizardVisible || isKeyholderVisible || flipped;
+  }, [phase, type]);
+
+  const backSide = ["wizard-good", "wizard-evil"].includes(type)
+    ? WizardBack
+    : CardBack;
   return (
     <motion.div
-      className="w-[100px] h-[150px] overflow-hidden"
+      className={`${className} overflow-hidden`}
       style={{
         perspective: "600px", // Adds depth for 3D animation
       }}
@@ -62,36 +81,35 @@ const FlippingCard = ({ type = "gold" }) => {
       <motion.div
         animate={{ rotateY: isFlipped ? 180 : 0 }} // Animates the flip
         transition={{ duration: 1 }} // Controls the flip speed
-        className="w-full h-full relative"
+        className="relative"
         style={{
           transformStyle: "preserve-3d", // Enables 3D effect
         }}
       >
         {/* Front Side */}
         <motion.div
-          onClick={() => setIsFlipped(!isFlipped)}
           style={{
             position: "absolute",
             backfaceVisibility: "hidden", // Ensures only one side is visible
-            width: "100%",
-            height: "100%",
             display: "flex",
             justifyContent: "center",
             alignItems: "center",
           }}
         >
           <figure>
-            <img src={CardBack} alt="Shoes" className="rounded-sm" />
+            <img src={backSide} alt="Shoes" className="rounded-sm" />
           </figure>
+          {["wizard-good", "wizard-evil"].includes(type) && (
+            <h2 className="absolute bottom-0 text-primary text-xl glass w-full text-center">
+              wizard
+            </h2>
+          )}
         </motion.div>
         <motion.div
-          onClick={() => setIsFlipped(!isFlipped)}
           style={{
             position: "absolute",
             backfaceVisibility: "hidden",
             transform: "rotateY(180deg)", // Flips the back face
-            width: "100%",
-            height: "100%",
             display: "flex",
             justifyContent: "center",
             alignItems: "center",
@@ -100,7 +118,9 @@ const FlippingCard = ({ type = "gold" }) => {
           <figure>
             <img src={photo} />
           </figure>
-          <h2 className="absolute bottom-0 text-primary text-xl glass w-full text-center">{type}</h2>
+          <h2 className="absolute bottom-0 text-primary text-xl glass w-full text-center">
+            {type}
+          </h2>
         </motion.div>
       </motion.div>
     </motion.div>

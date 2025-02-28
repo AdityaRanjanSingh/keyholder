@@ -1,5 +1,5 @@
 import { AnimatePresence, motion } from "framer-motion";
-import { isHost } from "playroomkit";
+import { isHost, setState } from "playroomkit";
 import { useCallback, useState } from "react";
 const container = {
   hidden: {
@@ -66,6 +66,9 @@ const FabButton = () => {
               <motion.li
                 variants={itemB}
                 className="h-14 w-14 flex items-center justify-center rounded-full bg-[#F4458D]"
+                onClick={() => {
+                  setState("phase", "lobby");
+                }}
               >
                 <i className="fa-solid  scale-150 fa-rotate-right text-primary-content"></i>
               </motion.li>
