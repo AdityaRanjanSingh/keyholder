@@ -1,18 +1,10 @@
 import { isHost, myPlayer, setState } from "playroomkit";
 import { useEffect, useMemo, useState } from "react";
-import { useNavigate } from "react-router";
 import { useGameEngine } from "../hooks/useGameEngine";
-import FlippingCard from "../components/Card";
 import Header from "../components/Header";
 import FabButton from "../components/FabButton";
 import { TextFade } from "../components/text-fade";
-import Lobby from "../components/Lobby";
-import { AnimatePresence, motion } from "framer-motion";
-import Discussion from "../components/Discussion";
-import Role from "../components/Role";
-import Introduction from "../components/Introduction";
-import Player from "../components/Player";
-import "./styles.css";
+
 const getPhaseIntro = (phase) => {
   let title = "";
   let description = "";
@@ -78,11 +70,6 @@ const getPhaseIntro = (phase) => {
   return { title, description };
 };
 
-const getRoleDescription = (role) => {
-  const isEvilTeam = ["wizard-evil", "traitor"].includes(role);
-  if (isEvilTeam) return "You are in the evil team";
-  return "You are in the good team";
-};
 export default () => {
   const me = myPlayer();
 
@@ -93,10 +80,9 @@ export default () => {
     setState("phase", "shuffle", true);
   };
   const role = me.getState("role");
-  const roleDesc = useMemo(() => getRoleDescription(role), [role]);
 
-  const isPlayerCardsVisible = ["wizard", "keyholder", "stop"].includes(phase);
   const isPhaseIntroductionVisible = [
+    "lobby",
     "role-description",
     "wizard-description",
     "keyholder-description",
@@ -107,34 +93,36 @@ export default () => {
     "ring-description",
   ].includes(phase);
   return (
-    <div className="flex flex-col h-full background">
-      <Header></Header>
-      <AnimatePresence mode="wait">
-        <motion.div
-          key={phase}
-          initial={{ y: 100, opacity: 0 }}
-          animate={{ y: 0, opacity: 1 }}
-          exit={{ y: -100, opacity: 0 }}
-          transition={{ duration: 0.2 }}
-          className="flex-1 justify-center"
-        >
-          {isPlayerCardsVisible && (
-            <motion.div className="">
-              {players.map((player, index) => (
-                <div key={index} className="rounded-box flex-col">
-                  <Player index={index}></Player>
+    <div className="h-full">
+      {isPhaseIntroductionVisible && (
+        <div className="content-center" style={{ height: "90%" }}>
+          <div className="flex-col my-5 content-center">
+            <TextFade
+              direction="up"
+              className="pt-0 pb-5 flex-col flex justify-center items-center space-y-0"
+            >
+              <h2 className="text-4xl text-center sm:text-4xl font-bold tracking-tighter md:text-6xl md:leading-[0rem] prose-h2:my-0 mx-5">
+                {introduciton.title}
+              </h2>
+              {introduciton.description && (
+                <div className="prose-p:my-1 text-center md:text-lg max-w-lg mx-auto text-balance dark:text-zinc-300">
+                  {introduciton.description}
                 </div>
-              ))}
-            </motion.div>
+              )}
+            </TextFade>
+          </div>
+          {isHost() && (
+            <div className="flex justify-center content-center">
+              <button
+                onClick={onStartGame}
+                className="btn btn-primary btn-wide"
+              >
+                Start
+              </button>
+            </div>
           )}
-          {phase === "lobby" && <Lobby></Lobby>}
-          {phase === "discussion" && <Discussion></Discussion>}
-          {phase === "role" && <Role></Role>}
-
-          {isPhaseIntroductionVisible && <Introduction />}
-        </motion.div>
-      </AnimatePresence>
-      <FabButton></FabButton>
+        </div>
+      )}
     </div>
   );
 };

@@ -1,3 +1,4 @@
+import { useControls } from "leva";
 import {
   getState,
   isHost,
@@ -535,7 +536,9 @@ export const GameEngineProvider = ({ children }) => {
     }
     setTimer(newTime);
   };
-
+  const { paused } = useControls({
+    paused: false,
+  });
   const timerInterval = useRef();
 
   const setModalContent = () => {
@@ -607,6 +610,7 @@ export const GameEngineProvider = ({ children }) => {
 
   const runTimer = () => {
     timerInterval.current = setInterval(() => {
+      if (paused) return;
       if (!isHost()) return;
       const time = getState("timer");
       let newTime = time - 1;
@@ -624,7 +628,7 @@ export const GameEngineProvider = ({ children }) => {
   useEffect(() => {
     runTimer();
     return clearTimer;
-  }, [phase]);
+  }, [phase, paused]);
 
   const clearTimer = () => {
     clearInterval(timerInterval.current);

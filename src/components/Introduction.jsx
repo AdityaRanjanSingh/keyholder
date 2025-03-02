@@ -10,9 +10,7 @@ import Lobby from "../components/Lobby";
 import { AnimatePresence, motion } from "framer-motion";
 import Discussion from "../components/Discussion";
 import Role from "../components/Role";
-import Introduction from "../components/Introduction";
-import Player from "../components/Player";
-import "./styles.css";
+
 const getPhaseIntro = (phase) => {
   let title = "";
   let description = "";
@@ -107,34 +105,29 @@ export default () => {
     "ring-description",
   ].includes(phase);
   return (
-    <div className="flex flex-col h-full background">
-      <Header></Header>
-      <AnimatePresence mode="wait">
-        <motion.div
-          key={phase}
-          initial={{ y: 100, opacity: 0 }}
-          animate={{ y: 0, opacity: 1 }}
-          exit={{ y: -100, opacity: 0 }}
-          transition={{ duration: 0.2 }}
-          className="flex-1 justify-center"
+    <>
+      <div className="flex-col my-5 content-center">
+        <TextFade
+          direction="up"
+          className="pt-0 pb-5 flex-col flex justify-center items-center space-y-0"
         >
-          {isPlayerCardsVisible && (
-            <motion.div className="">
-              {players.map((player, index) => (
-                <div key={index} className="rounded-box flex-col">
-                  <Player index={index}></Player>
-                </div>
-              ))}
-            </motion.div>
+          <h2 className="text-4xl text-center sm:text-4xl font-bold tracking-tighter md:text-6xl md:leading-[0rem] prose-h2:my-0 mx-5">
+            {introduciton.title}
+          </h2>
+          {introduciton.description && (
+            <div className="prose-p:my-1 text-center md:text-lg max-w-lg mx-auto text-balance dark:text-zinc-300">
+              {introduciton.description}
+            </div>
           )}
-          {phase === "lobby" && <Lobby></Lobby>}
-          {phase === "discussion" && <Discussion></Discussion>}
-          {phase === "role" && <Role></Role>}
-
-          {isPhaseIntroductionVisible && <Introduction />}
-        </motion.div>
-      </AnimatePresence>
-      <FabButton></FabButton>
-    </div>
+        </TextFade>
+      </div>
+      {isHost() && phase === "lobby" && (
+        <div className="flex justify-center">
+          <button onClick={onStartGame} className="btn btn-primary btn-wide">
+            Start
+          </button>
+        </div>
+      )}
+    </>
   );
 };
