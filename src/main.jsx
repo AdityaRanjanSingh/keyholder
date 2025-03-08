@@ -4,7 +4,7 @@ import ReactDOM from "react-dom/client";
 import { GameEngineProvider } from "./hooks/useGameEngine";
 import "./index.css";
 
-import Experience from "./screens/Experience";
+import Controller from "./screens/controller";
 
 insertCoin({
   gameId: "a0xaPjlAzIDR2nXv4WKQ",
@@ -13,7 +13,7 @@ insertCoin({
   ReactDOM.createRoot(document.getElementById("root")).render(
     <React.StrictMode>
       <GameEngineProvider>
-        <Experience></Experience>
+        <Controller />
       </GameEngineProvider>
     </React.StrictMode>
   );

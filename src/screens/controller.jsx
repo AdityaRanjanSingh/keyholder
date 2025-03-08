@@ -150,7 +150,12 @@ export default () => {
         <h1 className="text-3xl text-center">{phaseTitle}</h1>
         {phase === "discussion" && <Timer></Timer>}
         {timer === 0 && phase === "discussion" && (
-          <button className="btn btn-circle btn-lg" onClick={() => {}}>
+          <button
+            className="btn btn-circle btn-lg"
+            onClick={() => {
+              hideMessage();
+            }}
+          >
             Stop
           </button>
         )}
