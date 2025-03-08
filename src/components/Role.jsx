@@ -1,14 +1,10 @@
 import { isHost, myPlayer, setState } from "playroomkit";
 import { useEffect, useMemo, useState } from "react";
-import { useNavigate } from "react-router";
 import { useGameEngine } from "../hooks/useGameEngine";
 import FlippingCard from "../components/Card";
-import Header from "../components/Header";
-import FabButton from "../components/FabButton";
+
 import { TextFade } from "../components/text-fade";
-import Lobby from "../components/Lobby";
-import { AnimatePresence, motion } from "framer-motion";
-import Discussion from "../components/Discussion";
+import Player from "./Player";
 
 const getPhaseIntro = (phase) => {
   let title = "";
@@ -84,58 +80,16 @@ export default () => {
   const me = myPlayer();
 
   const { phase, phaseNo, players } = useGameEngine();
+  const myIndex = players.findIndex((player) => player.id === me.id);
 
-  const introduciton = useMemo(() => getPhaseIntro(phase), [phase]);
-  const onStartGame = () => {
-    setState("phase", "shuffle", true);
-  };
   const role = me.getState("role");
   const roleDesc = useMemo(() => getRoleDescription(role), [role]);
 
   const isPlayerCardsVisible = ["wizard", "keyholder", "stop"].includes(phase);
-  const isPhaseIntroductionVisible = [
-    "role-description",
-    "wizard-description",
-    "keyholder-description",
-    "discussion-description",
-    "stop-description",
-    "result-description",
-    "treasure-description",
-    "ring-description",
-  ].includes(phase);
+
   return (
     <div className="">
-      {isPlayerCardsVisible && (
-        <div className="flex flex-wrap justify-center my-5 gap-1 gap-y-2">
-          {players.map((player) => (
-            <div key={player.id}>
-              <p className="text-md">{player.getProfile().name}</p>
-              <FlippingCard
-                className="w-[100px] h-[150px]"
-                type={player.getState("role")}
-              />
-            </div>
-          ))}
-        </div>
-      )}
-      <div
-        className="flex flex-col items-center justify-center"
-        style={{ height: "90%" }}
-      >
-        <FlippingCard
-          className="w-[250px] h-[375px]"
-          type={me.getState("role")}
-          flipped={true}
-        />
-        <TextFade
-          direction="up"
-          className="pt-0 mt-5 flex-col flex justify-center items-center space-y-0"
-        >
-          <div className="prose-p:my-1 text-center md:text-lg max-w-lg mx-auto text-balance dark:text-zinc-300">
-            {roleDesc}
-          </div>
-        </TextFade>
-      </div>
+      <Player index={myIndex} />
     </div>
   );
 };

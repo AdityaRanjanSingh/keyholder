@@ -13,7 +13,7 @@ import EvilWizard from "../assets/photos/wizard-evil.jpg";
 import WizardBack from "../assets/photos/wizard-back.jpg";
 
 import React, { useState, useEffect, useMemo } from "react";
-import { motion } from "framer-motion";
+import { motion } from "motion/react";
 import { useGameEngine } from "../hooks/useGameEngine";
 import { myPlayer } from "playroomkit";
 

@@ -34,6 +34,8 @@ export const Phases = [
 ];
 
 export const INTRODUCTION_TIME = 5;
+export const DISCUSSION_TIME = 15;
+
 export const Time = [15, 15, 15, 60, 15, 15, 15, -1];
 const GameEngineContext = React.createContext();
 
@@ -227,6 +229,7 @@ export const GameEngineProvider = ({ children }) => {
   );
   const [wizards, setWizards] = useMultiplayerState("wizards", []);
 
+  const [keyholder, setKeyholder] = useMultiplayerState("keyholder", -1, true);
   const players = usePlayersList(true);
 
   const playerRoles = useMemo(
@@ -248,6 +251,7 @@ export const GameEngineProvider = ({ children }) => {
     winner,
     stoppedPlayer,
     phaseNo,
+    keyholder,
   };
 
   const startGame = () => {
@@ -262,13 +266,13 @@ export const GameEngineProvider = ({ children }) => {
         ...new Array(5).fill(0).map(() => "magicRing"),
         ...new Array(2).fill(0).map(() => "gildedStatue"),
       ].sort(() => 0.5 - Math.random());
-
       setTreasureDeck(shuffledArray, true);
-      distributeRoles();
       players.forEach((player) => {
         player.setState("treasureCards", [], true);
+        player.setState("role", "", true);
       });
-      // setTimer(Time[phaseNo]);
+      distributeRoles();
+      setPhase("role");
     }
   };
 
@@ -292,6 +296,9 @@ export const GameEngineProvider = ({ children }) => {
       const randomIndex = randInt(0, shuffledArray.length - 1);
       const role = shuffledArray[randomIndex];
       player.setState("role", role, true);
+      if (role === "keyholder") {
+        setKeyholder(index, true);
+      }
       if (/wizard/gi.test(role)) newWizards.push(index);
       if (["goodWizard", "guard", "keyholder"].includes(role)) {
         newGoodTeam.push(index);
@@ -360,11 +367,10 @@ export const GameEngineProvider = ({ children }) => {
         break;
       case "role-description":
         startGame();
-        setPhase("role");
         newTime = INTRODUCTION_TIME;
         break;
       case "role":
-        setPhase("wizard");
+        setPhase("wizard-description");
         newTime = INTRODUCTION_TIME;
         break;
       case "wizard-description":
@@ -374,6 +380,7 @@ export const GameEngineProvider = ({ children }) => {
       case "wizard":
         newTime = INTRODUCTION_TIME;
         setPhase("keyholder-description");
+        // setPhase("keyholder-description");
         break;
       case "keyholder-description":
         newTime = INTRODUCTION_TIME;
@@ -384,13 +391,13 @@ export const GameEngineProvider = ({ children }) => {
         setPhase("discussion-description");
         break;
       case "discussion-description":
-        newTime = INTRODUCTION_TIME;
+        newTime = DISCUSSION_TIME;
         setPhase("discussion");
         break;
-      case "discussion":
-        newTime = INTRODUCTION_TIME;
-        setPhase("stop-description");
-        break;
+      // case "discussion":
+      //   newTime = INTRODUCTION_TIME;
+      //   setPhase("stop-description");
+      //   break;
       case "stop-description":
         newTime = INTRODUCTION_TIME;
         setPhase("stop");

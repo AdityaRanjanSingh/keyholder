@@ -1,18 +1,13 @@
 import { isHost, myPlayer, setState } from "playroomkit";
 import { useEffect, useMemo, useState } from "react";
-import { useNavigate } from "react-router";
 import { useGameEngine } from "../hooks/useGameEngine";
-import FlippingCard from "../components/Card";
 import Header from "../components/Header";
 import FabButton from "../components/FabButton";
-import { TextFade } from "../components/text-fade";
-import Lobby from "../components/Lobby";
-import { AnimatePresence, motion } from "framer-motion";
-import Discussion from "../components/Discussion";
-import Role from "../components/Role";
-import Introduction from "../components/Introduction";
+import { AnimatePresence, motion } from "motion/react";
 import Player from "../components/Player";
 import "./styles.css";
+import { animate } from "motion";
+import Timer from "../components/Timer";
 const getPhaseIntro = (phase) => {
   let title = "";
   let description = "";
@@ -72,10 +67,9 @@ const getPhaseIntro = (phase) => {
       title = "ring";
       break;
     default:
-      title = phase;
       break;
   }
-  return { title, description };
+  return title;
 };
 
 const getRoleDescription = (role) => {
@@ -86,54 +80,81 @@ const getRoleDescription = (role) => {
 export default () => {
   const me = myPlayer();
 
-  const { phase, phaseNo, players } = useGameEngine();
+  const { phase, phaseNo, players, timer } = useGameEngine();
 
-  const introduciton = useMemo(() => getPhaseIntro(phase), [phase]);
-  const onStartGame = () => {
-    setState("phase", "shuffle", true);
+  const myIndex = players.findIndex((player) => player.id === me.id);
+  const phaseTitle = useMemo(() => getPhaseIntro(phase), [phase]);
+
+  const showMessage = () => {
+    animate(
+      ".messages",
+      {
+        height: "100%",
+        width: "100%",
+        opacity: 1,
+      },
+      {
+        duration: 1,
+      }
+    );
   };
-  const role = me.getState("role");
-  const roleDesc = useMemo(() => getRoleDescription(role), [role]);
+  const hideMessage = () => {
+    animate(
+      ".messages",
+      {
+        height: 0,
+        width: "100%",
+        opacity: 0,
+      },
+      {
+        duration: 1,
+      }
+    );
+  };
 
-  const isPlayerCardsVisible = ["wizard", "keyholder", "stop"].includes(phase);
-  const isPhaseIntroductionVisible = [
-    "role-description",
-    "wizard-description",
-    "keyholder-description",
-    "discussion-description",
-    "stop-description",
-    "result-description",
-    "treasure-description",
-    "ring-description",
-  ].includes(phase);
+  useEffect(() => {
+    if (
+      [
+        "role-description",
+        "wizard-description",
+        "keyholder-description",
+        "discussion-description",
+      ].includes(phase)
+    ) {
+      showMessage();
+    }
+    if (["role", "wizard", "keyholder", "stop-description"].includes(phase)) {
+      hideMessage();
+    }
+  }, [phase]);
+
   return (
-    <div className="flex flex-col h-full background">
+    <div className="flex flex-col h-full ">
       <Header></Header>
-      <AnimatePresence mode="wait">
-        <motion.div
-          key={phase}
-          initial={{ y: 100, opacity: 0 }}
-          animate={{ y: 0, opacity: 1 }}
-          exit={{ y: -100, opacity: 0 }}
-          transition={{ duration: 0.2 }}
-          className="flex-1 justify-center"
-        >
-          {isPlayerCardsVisible && (
-            <motion.div className="">
-              {players.map((player, index) => (
-                <div key={index} className="rounded-box flex-col">
-                  <Player index={index}></Player>
-                </div>
-              ))}
-            </motion.div>
-          )}
-          {phase === "lobby" && <Lobby></Lobby>}
-          {phase === "discussion" && <Discussion></Discussion>}
-          {phase === "role" && <Role></Role>}
-
-          {isPhaseIntroductionVisible && <Introduction />}
-        </motion.div>
-      </AnimatePresence>
+      <motion.div initial={{ height: "auto", opacity: 1 }} className="players">
+        {players.map((player, index) => (
+          <motion.div key={index}>
+            <Player index={index}></Player>
+          </motion.div>
+        ))}
+      </motion.div>
+      <motion.div
+        initial={{
+          height: 0,
+          opacity: 0,
+          width: "100%",
+          backgroundColor: "#ffadad",
+        }}
+        className="flex flex-col justify-center items-center messages absolute bottom-0 text-primary-content content-center "
+      >
+        <h1 className="text-3xl text-center">{phaseTitle}</h1>
+        {phase === "discussion" && <Timer></Timer>}
+        {timer === 0 && phase === "discussion" && (
+          <button className="btn btn-circle btn-lg" onClick={() => {}}>
+            Stop
+          </button>
+        )}
+      </motion.div>
       <FabButton></FabButton>
     </div>
   );

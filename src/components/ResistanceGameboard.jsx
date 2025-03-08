@@ -11,7 +11,6 @@ import { degToRad } from "three/src/math/MathUtils";
 import { useGameEngine } from "../hooks/useGameEngine";
 import { Card } from "./Card";
 import { Player } from "./Player";
-import { useControls } from "leva";
 import { Zombie } from "./Zombie";
 
 export const Gameboard = () => {

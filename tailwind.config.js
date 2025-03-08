@@ -6,7 +6,7 @@ export default {
   theme: {
     extend: {},
     fontFamily: {
-      sans: ["MedievalSharp", "sans-serif"],
+      sans: ["Exo 2", "sans-serif"],
     },
   },
   daisyui: {

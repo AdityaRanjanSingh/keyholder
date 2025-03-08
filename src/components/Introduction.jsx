@@ -1,15 +1,8 @@
 import { isHost, myPlayer, setState } from "playroomkit";
 import { useEffect, useMemo, useState } from "react";
-import { useNavigate } from "react-router";
 import { useGameEngine } from "../hooks/useGameEngine";
-import FlippingCard from "../components/Card";
-import Header from "../components/Header";
-import FabButton from "../components/FabButton";
+
 import { TextFade } from "../components/text-fade";
-import Lobby from "../components/Lobby";
-import { AnimatePresence, motion } from "framer-motion";
-import Discussion from "../components/Discussion";
-import Role from "../components/Role";
 
 const getPhaseIntro = (phase) => {
   let title = "";
@@ -105,29 +98,20 @@ export default () => {
     "ring-description",
   ].includes(phase);
   return (
-    <>
-      <div className="flex-col my-5 content-center">
-        <TextFade
-          direction="up"
-          className="pt-0 pb-5 flex-col flex justify-center items-center space-y-0"
-        >
-          <h2 className="text-4xl text-center sm:text-4xl font-bold tracking-tighter md:text-6xl md:leading-[0rem] prose-h2:my-0 mx-5">
-            {introduciton.title}
-          </h2>
-          {introduciton.description && (
-            <div className="prose-p:my-1 text-center md:text-lg max-w-lg mx-auto text-balance dark:text-zinc-300">
-              {introduciton.description}
-            </div>
-          )}
-        </TextFade>
-      </div>
-      {isHost() && phase === "lobby" && (
-        <div className="flex justify-center">
-          <button onClick={onStartGame} className="btn btn-primary btn-wide">
-            Start
-          </button>
-        </div>
-      )}
-    </>
+    <div className="content-center h-full">
+      <TextFade
+        direction="up"
+        className="pt-0 pb-5 flex-col flex justify-center items-center space-y-0"
+      >
+        <h2 className="text-4xl text-center sm:text-4xl font-bold tracking-tighter md:text-6xl md:leading-[0rem] prose-h2:my-0 mx-5">
+          {introduciton.title}
+        </h2>
+        {introduciton.description && (
+          <div className="prose-p:my-1 text-center md:text-lg max-w-lg mx-auto text-balance dark:text-zinc-300">
+            {introduciton.description}
+          </div>
+        )}
+      </TextFade>
+    </div>
   );
 };

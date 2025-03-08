@@ -3,7 +3,6 @@ import { useEffect, useMemo, useState } from "react";
 import { useGameEngine } from "../hooks/useGameEngine";
 import Header from "../components/Header";
 import FabButton from "../components/FabButton";
-import { TextFade } from "../components/text-fade";
 
 const getPhaseIntro = (phase) => {
   let title = "";

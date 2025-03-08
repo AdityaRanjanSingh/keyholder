@@ -1748,27 +1748,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"framer-motion-3d@npm:^11.0.3":
-  version: 11.18.2
-  resolution: "framer-motion-3d@npm:11.18.2"
+"framer-motion@npm:^12.4.10":
+  version: 12.4.10
+  resolution: "framer-motion@npm:12.4.10"
   dependencies:
-    framer-motion: "npm:^11.18.2"
-    react-merge-refs: "npm:^2.0.1"
-  peerDependencies:
-    "@react-three/fiber": 8.2.2
-    react: ">=18.0"
-    react-dom: ">=18.0"
-    three: ">=0.133"
-  checksum: 10c0/650f90cebcdeec1a0dee5b39352a58d7be58d0c2d929aa4a10a2b53b8266fce36521b9a7f042215085688e486fa8cfef954fdfbb7c8237f5f783a649c419db2a
-  languageName: node
-  linkType: hard
-
-"framer-motion@npm:^11.0.3, framer-motion@npm:^11.18.2":
-  version: 11.18.2
-  resolution: "framer-motion@npm:11.18.2"
-  dependencies:
-    motion-dom: "npm:^11.18.1"
-    motion-utils: "npm:^11.18.1"
+    motion-dom: "npm:^12.4.10"
+    motion-utils: "npm:^12.4.10"
     tslib: "npm:^2.4.0"
   peerDependencies:
     "@emotion/is-prop-valid": "*"
@@ -1781,7 +1766,7 @@ __metadata:
       optional: true
     react-dom:
       optional: true
-  checksum: 10c0/41b1ef1b4e54ea13adaf01d61812a8783d2352f74641c91b50519775704bc6274db6b6863ff494a1f705fa6c6ed8f4df3497292327c906d53ea0129cef3ec361
+  checksum: 10c0/8cc18ea5739c3f79c6dff95d5eddca81508e56bbff966caad9bb1ac02bf47fec6505b7547959902597c00e9addb90c5d60a2f620dd4c24ddee23aae328cec685
   languageName: node
   linkType: hard
 
@@ -2410,19 +2395,40 @@ __metadata:
   languageName: node
   linkType: hard
 
-"motion-dom@npm:^11.18.1":
-  version: 11.18.1
-  resolution: "motion-dom@npm:11.18.1"
+"motion-dom@npm:^12.4.10":
+  version: 12.4.10
+  resolution: "motion-dom@npm:12.4.10"
   dependencies:
-    motion-utils: "npm:^11.18.1"
-  checksum: 10c0/98378bdf9d77870829cdf3624c5eff02e48cfa820dfc74450364d7421884700048d60e277bfbf477df33270fbae4c1980e5914586f5b6dff28d4921fdca8ac47
+    motion-utils: "npm:^12.4.10"
+  checksum: 10c0/6d9f17f312622a4e969e0edea11efbd411204b6e19a9b39e5e9e9d17222c7be0f421df355ca12a762096b5a9957a9d8a4e34fb0120b7f5f5c91ed987ea6a6e7e
   languageName: node
   linkType: hard
 
-"motion-utils@npm:^11.18.1":
-  version: 11.18.1
-  resolution: "motion-utils@npm:11.18.1"
-  checksum: 10c0/dac083bdeb6e433a277ac4362211b0fdce59ff09d6f7897f0f49d1e3561209c6481f676876daf99a33485054bc7e4b1d1b8d1de16f7b1e5c6f117fe76358ca00
+"motion-utils@npm:^12.4.10":
+  version: 12.4.10
+  resolution: "motion-utils@npm:12.4.10"
+  checksum: 10c0/5788836c42fad17a07c877cf4a7e407570e2f3125bc821f6673ee3f0e81b6b9c6b8faaa38c8c17c5a82d2b07484fc50162f29de2c69d80f685213fb0012b257b
+  languageName: node
+  linkType: hard
+
+"motion@npm:^12.4.10":
+  version: 12.4.10
+  resolution: "motion@npm:12.4.10"
+  dependencies:
+    framer-motion: "npm:^12.4.10"
+    tslib: "npm:^2.4.0"
+  peerDependencies:
+    "@emotion/is-prop-valid": "*"
+    react: ^18.0.0 || ^19.0.0
+    react-dom: ^18.0.0 || ^19.0.0
+  peerDependenciesMeta:
+    "@emotion/is-prop-valid":
+      optional: true
+    react:
+      optional: true
+    react-dom:
+      optional: true
+  checksum: 10c0/b20f936d4376b8184b262f319d59af633d436f21dffb3b229dbee700a7a2c38aa7457d21685dc8d685a781821657a22cc08a9f3f293b7d8f3f98697dd53e79c2
   languageName: node
   linkType: hard
 
@@ -2748,9 +2754,8 @@ __metadata:
     "@vitejs/plugin-react": "npm:^3.1.0"
     autoprefixer: "npm:^10.4.17"
     daisyui: "npm:^4.12.23"
-    framer-motion: "npm:^11.0.3"
-    framer-motion-3d: "npm:^11.0.3"
     leva: "npm:^0.10.0"
+    motion: "npm:^12.4.10"
     playroomkit: "npm:^0.0.61"
     postcss: "npm:^8.4.33"
     react: "npm:^18.2.0"
@@ -2835,13 +2840,6 @@ __metadata:
   version: 1.1.0
   resolution: "react-merge-refs@npm:1.1.0"
   checksum: 10c0/afb937156d834a058e5021535a63fd8a35984365c38b613478c31186da920b3b469e38b0b161a2075fbf5db7118fb8e96bb8a52a563f271d8f8f166fe8ffe2a4
-  languageName: node
-  linkType: hard
-
-"react-merge-refs@npm:^2.0.1":
-  version: 2.1.1
-  resolution: "react-merge-refs@npm:2.1.1"
-  checksum: 10c0/b68cbc4ea51fd96f77247733388738630769d928f32958e63262ce43dff10c6b20f18a0483c6a640a1ffba48f32be26059d4ee9711881cacc63297b01311c8f6
   languageName: node
   linkType: hard
 
