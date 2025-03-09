@@ -8,18 +8,64 @@ import Player from "../components/Player";
 import "./styles.css";
 import { animate } from "motion";
 import Timer from "../components/Timer";
-const getPhaseIntro = (phase) => {
+import Fab from "../components/Fab";
+const getPhaseIntro = (phase, role) => {
   let title = "";
   let description = "";
   switch (phase) {
     case "lobby":
-      title = "Ready to start new round";
+      title = "There are two teams good team with good wizard, keyholder and guard and the evil team with traitor and evil wizard";
       break;
     case "shuffle":
-      title = "Assigning roles";
-      break;
+      switch (role) {
+        case "keyholder":
+          title =
+            "You are keyholder!, Keep your identity secret and try to find the good wizard";
+          break;
+        case "guard":
+          title =
+            "You are Guard!, Keep your identity secret and try to find the traitor";
+          break;
+        case "wizard-evil":
+          title =
+            "You are Evil wizard!, Keep your identity secret and try to find the keyholder";
+          break;
+        case "wizard-good":
+          title =
+            "You are Good wizard!, Keep your identity secret and try to find the traitor";
+          break;
+        case "traitor":
+          title =
+            "You are Traitor!, Keep your identity secret and try to help the evil wizard find the keyholder";
+          break;
+        default:
+          break;
+      }
     case "role-description":
-      title = "Assign Roles";
+      switch (role) {
+        case "keyholder":
+          title =
+            "You are keyholder!, Keep your identity secret and try to find the good wizard";
+          break;
+        case "guard":
+          title =
+            "You are Guard!, Keep your identity secret and try to find the traitor";
+          break;
+        case "wizard-evil":
+          title =
+            "You are Evil wizard!, Keep your identity secret and try to find the keyholder";
+          break;
+        case "wizard-good":
+          title =
+            "You are Good wizard!, Keep your identity secret and try to find the traitor";
+          break;
+        case "traitor":
+          title =
+            "You are Traitor!, Keep your identity secret and try to help the evil wizard find the keyholder";
+          break;
+        default:
+          break;
+      }
       description =
         "The roles have been assigned! Keep your identity secret and prepare for the game ahead.";
       break;
@@ -80,10 +126,18 @@ const getRoleDescription = (role) => {
 export default () => {
   const me = myPlayer();
 
-  const { phase, phaseNo, players, timer } = useGameEngine();
-
+  const { phase, phaseNo, players, timer, stoppedPlayer } = useGameEngine();
   const myIndex = players.findIndex((player) => player.id === me.id);
-  const phaseTitle = useMemo(() => getPhaseIntro(phase), [phase]);
+
+  const phaseTitle = useMemo(() => {
+    const role = me.getState("role");
+    let phaseIntro = getPhaseIntro(phase, role);
+    console.log({ role, phase, phaseIntro });
+    if (phase === "stop-description") {
+      phaseIntro = `${players[stoppedPlayer].getProfile().name} has stopped`;
+    }
+    return phaseIntro;
+  }, [phase]);
 
   const showMessage = () => {
     animate(
@@ -115,18 +169,25 @@ export default () => {
   useEffect(() => {
     if (
       [
+        "lobby",
         "role-description",
         "wizard-description",
         "keyholder-description",
         "discussion-description",
+        "stop-description",
       ].includes(phase)
     ) {
       showMessage();
     }
-    if (["role", "wizard", "keyholder", "stop-description"].includes(phase)) {
+    if (["role", "wizard", "keyholder", "stop"].includes(phase)) {
       hideMessage();
     }
   }, [phase]);
+
+  const onStopPress = () => {
+    setState("stoppedPlayer", myIndex, true);
+    setState("timer", 2, true);
+  };
 
   return (
     <div className="flex flex-col h-full ">
@@ -148,19 +209,19 @@ export default () => {
         className="flex flex-col justify-center items-center messages absolute bottom-0 text-primary-content content-center "
       >
         <h1 className="text-3xl text-center">{phaseTitle}</h1>
-        {phase === "discussion" && <Timer></Timer>}
+        {phase === "discussion" && timer !== 0 && <Timer></Timer>}
         {timer === 0 && phase === "discussion" && (
-          <button
-            className="btn btn-circle btn-lg"
-            onClick={() => {
-              hideMessage();
-            }}
-          >
-            Stop
-          </button>
+          <>
+            <h1 className="text-lg text-center my-10">
+              Press stop to identify a person
+            </h1>
+            <button className="btn btn-circle btn-lg" onClick={onStopPress}>
+              Stop
+            </button>
+          </>
         )}
       </motion.div>
-      <FabButton></FabButton>
+      <Fab></Fab>
     </div>
   );
 };

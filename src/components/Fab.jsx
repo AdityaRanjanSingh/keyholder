@@ -1,12 +1,9 @@
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router";
 import { Fab, Action } from "react-tiny-fab";
 import "react-tiny-fab/dist/styles.css";
 import { useGameEngine } from "../hooks/useGameEngine";
 import { isHost, myPlayer, setState } from "playroomkit";
-import { toast } from "react-toastify";
 export default () => {
-  const navigate = useNavigate();
   const [newRoundVisible, setNewRoundVisible] = useState(false);
   const [stopVisible, setStopVisible] = useState(true);
 
@@ -16,7 +13,7 @@ export default () => {
   const myIndex = players.findIndex((player) => player.id === me.id);
 
   useEffect(() => {
-    const isStopVisible = role !== "traitor" && phase === "introduction";
+    const isStopVisible = role !== "traitor" && phase === "discussion";
     const isNewRoundVisible = isHost();
     setStopVisible(isStopVisible);
     setNewRoundVisible(isNewRoundVisible);
@@ -24,11 +21,12 @@ export default () => {
 
   const onStopClick = () => {
     setState("stoppedPlayer", myIndex, true);
-    setState("phase", "choosePlayer", true);
-    setState("timer", 15, true);
+    setState("phase", "stop-description", true);
+    setState("timer", 5, true);
   };
   const onNewRound = () => {
-    setState("round", round + 1, true);
+    setState("timer", 1, true);
+    setState("phase", "shuffle");
   };
 
   return (
@@ -37,9 +35,6 @@ export default () => {
       icon={<i className="fa-solid fa-plus"></i>}
       alwaysShowTitle={true}
     >
-      <Action text="Learn" onClick={() => navigate("/learn")}>
-        <i className="fa-brands fa-leanpub"></i>
-      </Action>
       {stopVisible && (
         <Action text="Stop" onClick={onStopClick}>
           <i className="fa-solid fa-circle-stop"></i>

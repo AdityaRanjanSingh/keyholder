@@ -208,7 +208,6 @@ export const GameEngineProvider = ({ children }) => {
   const [timer, setTimer] = useMultiplayerState("timer", 0);
   const [goodTeam, setGoodTeam] = useMultiplayerState("goodTeam", []);
   const [badTeam, setBadTeam] = useMultiplayerState("badTeam", []);
-
   const [phase, setPhase] = useMultiplayerState("phase", "lobby");
   const [phaseNo, setPhaseNo] = useMultiplayerState("phaseNo", 0);
   const [playerTurn, setPlayerTurn] = useMultiplayerState("playerTurn", 0);
@@ -225,7 +224,7 @@ export const GameEngineProvider = ({ children }) => {
 
   const [stoppedPlayer, setStoppedPlayer] = useMultiplayerState(
     "stoppedPlayer",
-    100
+    -1
   );
   const [wizards, setWizards] = useMultiplayerState("wizards", []);
 
@@ -271,6 +270,7 @@ export const GameEngineProvider = ({ children }) => {
         player.setState("treasureCards", [], true);
         player.setState("role", "", true);
       });
+      setStoppedPlayer(-1, true);
       distributeRoles();
       setPhase("role");
     }
@@ -362,12 +362,13 @@ export const GameEngineProvider = ({ children }) => {
     let newTime = 0;
     switch (phase) {
       case "shuffle":
+        startGame();
         setPhase("role-description");
         newTime = INTRODUCTION_TIME;
         break;
       case "role-description":
-        startGame();
         newTime = INTRODUCTION_TIME;
+        setPhase("role");
         break;
       case "role":
         setPhase("wizard-description");
@@ -394,10 +395,12 @@ export const GameEngineProvider = ({ children }) => {
         newTime = DISCUSSION_TIME;
         setPhase("discussion");
         break;
-      // case "discussion":
-      //   newTime = INTRODUCTION_TIME;
-      //   setPhase("stop-description");
-      //   break;
+      case "discussion":
+        if (stoppedPlayer !== -1) {
+          setPhase("stop-description");
+          newTime = INTRODUCTION_TIME;
+        }
+        break;
       case "stop-description":
         newTime = INTRODUCTION_TIME;
         setPhase("stop");

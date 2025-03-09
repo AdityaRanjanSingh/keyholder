@@ -55,7 +55,7 @@ export default ({ index = 0 }) => {
 
     const isPersonsRole = myIndex === index;
     setWizardVisible(isWizardVisible);
-    return isWizardVisible || isKeyholderVisible || isPersonsRole
+    return isWizardVisible || isKeyholderVisible || false
       ? player.getState("role")
       : ["wizard-good", "wizard-evil"].includes(role)
       ? "wizard"
