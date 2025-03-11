@@ -204,11 +204,13 @@ const getPlayerRoles = (players) => {
   }
 };
 export const GameEngineProvider = ({ children }) => {
+  const [answers, setAnswers] = useMultiplayerState("answers", []);
+
   // GAME STATE
   const [timer, setTimer] = useMultiplayerState("timer", 0);
   const [goodTeam, setGoodTeam] = useMultiplayerState("goodTeam", []);
   const [badTeam, setBadTeam] = useMultiplayerState("badTeam", []);
-  const [phase, setPhase] = useMultiplayerState("phase", "lobby");
+  const [phase, setPhase] = useMultiplayerState("phase", "question");
   const [phaseNo, setPhaseNo] = useMultiplayerState("phaseNo", 0);
   const [playerTurn, setPlayerTurn] = useMultiplayerState("playerTurn", 0);
   const [playerStart, setPlayerStart] = useMultiplayerState("playerStart", 0);
@@ -244,35 +246,13 @@ export const GameEngineProvider = ({ children }) => {
     playerTurn,
     playerStart,
     players,
-    deck,
-    wizards,
-    round,
-    winner,
-    stoppedPlayer,
-    phaseNo,
-    keyholder,
+    answers,
   };
 
   const startGame = () => {
     if (isHost()) {
       console.log("Start game");
-      const shuffledArray = [
-        ...new Array(2).fill(0).map(() => "jewels"),
-        ...new Array(5).fill(0).map(() => "platinum"),
-        ...new Array(12).fill(0).map(() => "gold"),
-        ...new Array(11).fill(0).map(() => "silver"),
-        ...new Array(5).fill(0).map(() => "copper"),
-        ...new Array(5).fill(0).map(() => "magicRing"),
-        ...new Array(2).fill(0).map(() => "gildedStatue"),
-      ].sort(() => 0.5 - Math.random());
-      setTreasureDeck(shuffledArray, true);
-      players.forEach((player) => {
-        player.setState("treasureCards", [], true);
-        player.setState("role", "", true);
-      });
-      setStoppedPlayer(-1, true);
-      distributeRoles();
-      setPhase("role");
+      setPhase("question");
     }
   };
 
@@ -361,223 +341,23 @@ export const GameEngineProvider = ({ children }) => {
   const phaseEnd = () => {
     let newTime = 0;
     switch (phase) {
-      case "shuffle":
-        startGame();
-        setPhase("role-description");
+      case "start":
         newTime = INTRODUCTION_TIME;
         break;
-      case "role-description":
-        newTime = INTRODUCTION_TIME;
-        setPhase("role");
+      case "question":
         break;
-      case "role":
-        setPhase("wizard-description");
-        newTime = INTRODUCTION_TIME;
-        break;
-      case "wizard-description":
-        setPhase("wizard");
-        newTime = INTRODUCTION_TIME;
-        break;
-      case "wizard":
-        newTime = INTRODUCTION_TIME;
-        setPhase("keyholder-description");
-        // setPhase("keyholder-description");
-        break;
-      case "keyholder-description":
-        newTime = INTRODUCTION_TIME;
-        setPhase("keyholder");
-        break;
-      case "keyholder":
-        newTime = INTRODUCTION_TIME;
-        setPhase("discussion-description");
-        break;
-      case "discussion-description":
-        newTime = DISCUSSION_TIME;
-        setPhase("discussion");
-        break;
-      case "discussion":
-        if (stoppedPlayer !== -1) {
-          setPhase("stop-description");
-          newTime = INTRODUCTION_TIME;
-        }
-        break;
-      case "stop-description":
-        newTime = INTRODUCTION_TIME;
-        setPhase("stop");
-        break;
-      case "stop":
-        newTime = INTRODUCTION_TIME;
-        setPhase("result-description");
-        break;
-      case "result-description":
-        newTime = INTRODUCTION_TIME;
-        setPhase("result");
-        break;
-      case "result": {
-        newTime = INTRODUCTION_TIME;
-        const pStopped = players[stoppedPlayer] ?? players[0];
-        const stoppedPlayerRole = pStopped.getState("role");
-        const selectedPlayer = pStopped.getState("selectedPlayer") ?? 0;
-        const selectedPlayerRole = players[selectedPlayer].getState("role");
-        const isCorrectGuess =
-          selectedPlayerRole === roleChoiceMap[stoppedPlayerRole];
-        const isGoodTeam = goodTeam.includes(stoppedPlayer);
-        players.forEach((player) => {
-          player.setState(
-            "toastMessage",
-            `${pStopped.getProfile().name} has made a ${
-              isCorrectGuess ? "correct" : "wrong"
-            } guess`,
-            true
-          );
-        });
-        if (isCorrectGuess && isGoodTeam) {
-          distributeTreasureCards(goodTeam);
-        } else if (isCorrectGuess) {
-          distributeTreasureCards(badTeam);
-        } else if (isGoodTeam && !isCorrectGuess) {
-          distributeTreasureCards(badTeam);
-        } else {
-          distributeTreasureCards(goodTeam);
-        }
-        setPhase("treasure-description");
-        break;
-      }
-      case "treasure-description":
-        newTime = INTRODUCTION_TIME;
-        setPhase("treasure");
-        break;
-      case "treasure":
-        newTime = INTRODUCTION_TIME;
-        setPhase("ring-description");
-        break;
-      case "ring-description":
-        newTime = INTRODUCTION_TIME;
-        setPhase("ring");
-        break;
-      case "ring":
-        newTime = INTRODUCTION_TIME;
-        setPhase("choose-player");
-        break;
-      case "choose-player":
-        newTime = INTRODUCTION_TIME;
-        setPhase("choose-card");
-        break;
-      case "choose-card":
-        newTime = INTRODUCTION_TIME;
-        setPhase("choose-card");
-        break;
-      case "end":
-        break;
-      case "revealTreasureCard":
-        newTime = INTRODUCTION_TIME;
-        players.forEach((player) => {
-          const treasureCards = player.getState("treasureCards") || [];
-          const hasUnsedRing = treasureCards.some(
-            (card) => card.type === "magicRing" && !card.used
-          );
-          player.setState("selectedPlayer", -1);
-          if (hasUnsedRing) {
-            player.setState(
-              "toastMessage",
-              "Touch the magic ring to use it",
-              true
-            );
-          }
-        });
-        setPhase("takeAction");
-        break;
-      case "takeAction":
-        newTime = INTRODUCTION_TIME;
-        setPhase("actionPlay");
-        break;
-      case "actionPlay":
-        newTime = INTRODUCTION_TIME;
-        let toastMessages = [];
-        players.forEach((player) => {
-          const selectedPlayer = player.getState("selectedPlayer");
-          const currentPlayerCards = player.getState("treasureCards") || [];
-          if (selectedPlayer !== -1) {
-            const treasureCards =
-              players[selectedPlayer].getState("treasureCards") || [];
-            if (treasureCards.length !== 0) {
-              const randomIndex = randInt(0, treasureCards.length - 1);
-              const gildedStatueIndex = treasureCards.findIndex(
-                (card) => card.type === "gildedStatue"
-              );
-              const cardIndex =
-                gildedStatueIndex !== -1 ? gildedStatueIndex : randomIndex;
-              const stolenCards = treasureCards.splice(cardIndex, 1);
-              players[selectedPlayer].setState(
-                "treasureCards",
-                treasureCards,
-                true
-              ),
-                toastMessages.push(
-                  `${player.getProfile().name} used magic ring on ${
-                    players[selectedPlayer].getProfile().name
-                  } and took ${stolenCards[0].type} card`
-                );
-
-              const magicRingIndex = currentPlayerCards.findIndex(
-                (card) => card.type === "magicRing"
-              );
-              currentPlayerCards.splice(magicRingIndex, 1, {
-                type: "magicRing",
-                used: true,
-              });
-              player.setState("treasureCards", [
-                ...currentPlayerCards,
-                ...stolenCards,
-              ]);
-              player.setState("selectedPlayer", -1);
-            }
-          }
-        });
-        players.forEach((player) => {
-          toastMessages.map((message) =>
-            player.setState("toastMessage", message)
-          );
-        });
-
+      case "players":
         break;
       default:
         break;
     }
+
     setTimer(newTime);
   };
   const { paused } = useControls({
     paused: false,
   });
   const timerInterval = useRef();
-
-  const setModalContent = () => {
-    switch (phase) {
-      case "choosePlayer":
-        {
-          players.forEach((player) => {
-            const role = players[stoppedPlayer].getState("role");
-            const message =
-              players[stoppedPlayer].getProfile().name +
-              ` is a ${role} and choosing the ${roleChoiceMap[role]}`;
-
-            player.setState("toastMessage", message, true);
-          });
-        }
-        break;
-      case "end":
-        {
-          players.forEach((player) => {
-            const name = players[winner].getProfile().name;
-            const message = `${name} is the winner`;
-            player.setState("toastMessage", message, true);
-          });
-        }
-        break;
-      default:
-        break;
-    }
-  };
 
   const checkWinner = () => {
     const winner = players.findIndex((player) => {
@@ -590,9 +370,12 @@ export const GameEngineProvider = ({ children }) => {
     }
   };
   useEffect(() => {
-    setModalContent();
     checkWinner();
   }, [phase]);
+
+  useEffect(() => {
+    startGame();
+  });
   const setNextPlayerTurn = () => {
     const newPlayerTurn = (getState("playerTurn") + 1) % players.length;
     setPlayerTurn(newPlayerTurn, true);
@@ -612,11 +395,6 @@ export const GameEngineProvider = ({ children }) => {
     });
     distributeRoles();
   };
-
-  useEffect(() => {
-    if (!round || !isHost()) return;
-    startNewRound();
-  }, [round]);
 
   const runTimer = () => {
     timerInterval.current = setInterval(() => {
