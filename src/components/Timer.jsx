@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { useGameEngine } from "../hooks/useGameEngine";
 import { animate } from "motion/react";
 
-export default () => {
+export default ({ className = "" }) => {
   const ref = useRef();
   const { timer } = useGameEngine();
   const [time, setTime] = useState(timer);
@@ -14,5 +14,12 @@ export default () => {
     });
     setTime(timer);
   }, [timer]);
-  return <pre className="text-5xl text-center" ref={ref}>{timer}</pre>;
+  return (
+    <pre
+      className={"text-5xl text-center text-neutral-content " + className}
+      ref={ref}
+    >
+      {timer}
+    </pre>
+  );
 };
