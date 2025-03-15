@@ -264,20 +264,6 @@ export const GameEngineProvider = ({ children }) => {
   });
   const timerInterval = useRef();
 
-  const checkWinner = () => {
-    const winner = players.findIndex((player) => {
-      const treasureCount = player.getState("treasureCount");
-      return treasureCount >= 10;
-    });
-    if (winner !== -1) {
-      setWinner(winner, true);
-      setPhase("end", true);
-    }
-  };
-  useEffect(() => {
-    checkWinner();
-  }, [phase]);
-
   useEffect(() => {
     startGame();
   }, []);

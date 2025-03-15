@@ -18,8 +18,10 @@ export default () => {
     () => players[playerTurn].getProfile().name,
     [playerTurn]
   );
-
   const isCurrentPlayerTurn = myIndex === playerTurn;
+
+  const showAudiencequestion =
+    (isCurrentPlayerTurn && phase === "question") === false;
 
   const [question, setQuestion] = useState("");
 
@@ -29,33 +31,38 @@ export default () => {
   return (
     <>
       <div className="card bg-base-100 w-full">
-        <div className="card-body items-center text-center">
-          {isCurrentPlayerTurn && phase === "question" && (
-            <>
-              <p>Choose a question.</p>
-              <h2 className="card-title">{question}</h2>
-              <div className="card-actions justify-end">
-                <button
-                  className="btn btn-primary"
-                  onClick={() => {
-                    setState("phase", "answer", true);
-                    setState("timer", 10, true);
-                  }}
-                >
-                  Accept
-                </button>
-                <button className="btn btn-secondary">Shuffle</button>
-              </div>
-            </>
-          )}
-          {!isCurrentPlayerTurn && phase === "question" && (
-            <>
+        {isCurrentPlayerTurn && phase === "question" && (
+          <div className="card-body items-center text-center">
+            {
+              <>
+                {<p>Choose a question.</p>}
+                <h2 className="card-title">{question}</h2>
+                <div className="card-actions justify-end">
+                  <button
+                    className="btn btn-primary"
+                    onClick={() => {
+                      setState("phase", "answer", true);
+                      setState("timer", 10, true);
+                    }}
+                  >
+                    Accept
+                  </button>
+                  <button className="btn btn-secondary">Shuffle</button>
+                </div>
+              </>
+            }
+          </div>
+        )}
+        {showAudiencequestion && (
+          <div className="card-body items-center text-center">
+            {phase === "question" && !isCurrentPlayerTurn && (
               <h2 className="card-title">
                 {playerName} is choosing a question
               </h2>
-            </>
-          )}
-        </div>
+            )}
+            {phase !== "question" && <h2 className="card-title">{question}</h2>}
+          </div>
+        )}
       </div>
     </>
   );

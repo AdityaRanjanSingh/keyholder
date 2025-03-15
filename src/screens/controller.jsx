@@ -25,9 +25,12 @@ export default () => {
   return (
     <div className="flex flex-col h-full bg-neutral">
       <Navbar></Navbar>
-      <div className="flex flex-row gap-2 m-2 ">
-        {players.map((play) => (
-          <div className="bg-base-100 p-2 rounded-lg justify-items-center">
+      <div className="flex flex-row gap-2 m-2 overflow-scroll">
+        {players.map((play, index) => (
+          <div
+            key={index}
+            className="bg-base-100 p-2 rounded-lg justify-items-center"
+          >
             <div className="avatar">
               <div className="w-16 rounded-full">
                 <img src={play.getProfile().photo} />
@@ -37,8 +40,9 @@ export default () => {
           </div>
         ))}
       </div>
-      <div className="m-5 flex-1 content-center">
-        {phase === "question" && <Question />}
+      <Question />
+      {phase === "answer" && <Timer className="my-5"></Timer>}
+      <div className="flex-1 m-2 content-end">
         {/* <div className="flex flex-wrap mt-2">
           {answers.map((item) => (
             <span className="bg-accent text-xl text-accent-content rounded-full p-2 mr-2 mb-2">
@@ -48,7 +52,6 @@ export default () => {
         </div> */}
         {phase === "answer" && (
           <>
-            <Timer className="my-5"></Timer>
             <div className="rounded-xl">
               <input
                 type="text"
